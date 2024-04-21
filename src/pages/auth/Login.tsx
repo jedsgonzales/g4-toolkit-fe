@@ -2,9 +2,10 @@ import * as Yup from 'yup'
 import { Link as RouterLink } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-//import { useSnackbar } from 'notistack'
-import { useFormik, FormikHelpers, Formik, Form, FormikProvider } from 'formik'
+import { useSnackbar } from 'notistack'
+import { useFormik, Form, FormikProvider } from 'formik'
 // icons
+import CloseIcon from '@mui/icons-material/Close'
 import Visibility from '@mui/icons-material/Visibility'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
 
@@ -28,10 +29,10 @@ import {
 import { LoadingButton } from '@mui/lab'
 // redux
 import { useDispatch, useSelector } from 'react-redux'
-//import { authLogin, authValidate } from 'src/redux/auth/slice'
+import { authLogin, authValidate } from 'src/redux/authSlice'
 
 // ----------------------------------------------------------------------
-const ContentStyle = styled('div')(({ theme }) => ({
+const ContentStyle = styled('div')(() => ({
   maxWidth: 480,
   margin: 'auto',
   display: 'flex',
@@ -65,22 +66,22 @@ export default function Login() {
 
   const [showPassword, setShowPassword] = useState(false)
 
-  const dispatch = useDispatch()
+  const dispatch = useDispatch<any>()
   const navigate = useNavigate()
   const { pathname } = useLocation()
 
   //const isMountedRef = useIsMountedRef()
-  //const { enqueueSnackbar, closeSnackbar } = useSnackbar()
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar()
 
   const auth = useSelector((state: any) => state.auth)
 
-  console.log(auth)
+  //console.log(auth)
 
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: initialValues,
     validationSchema: validationSchema,
-    onSubmit: async (values, { setErrors, setSubmitting }) => {
+    onSubmit: async (values: Values, { setSubmitting }) => {
 
       if (values.remember === true && values.email !== '' && values.password !== '') {
         localStorage.email = values.email
@@ -94,20 +95,18 @@ export default function Login() {
       }
 
       try {
-        //await dispatch(authLogin(values))
-        //await dispatch(authValidate())
+        await dispatch(authLogin(values))
+        await dispatch(authValidate())
         //await dispatch(userRead({ id: user.id }))
 
-        /*
         enqueueSnackbar('Login success', {
-            variant: 'success',
-            action: (key) => (
-            <MIconButton size="small" onClick={() => closeSnackbar(key)}>
-                <Icon icon={closeFill} />
-            </MIconButton>
-            )
+          variant: 'success',
+          action: (key) => (
+            <IconButton size='small' onClick={() => closeSnackbar(key)}>
+              <CloseIcon />
+            </IconButton>
+          )
         })
-        */
         //if (isMountedRef.current) {
         setSubmitting(false)
         //}
@@ -116,6 +115,14 @@ export default function Login() {
         //if (isMountedRef.current) {
         //  setErrors({ afterSubmit: error.message })
         setSubmitting(false)
+        enqueueSnackbar(error.message, {
+          variant: 'error',
+          action: (key) => (
+            <IconButton size='small' onClick={() => closeSnackbar(key)}>
+              <CloseIcon />
+            </IconButton>
+          )
+        })
         //}
       }
     }
@@ -202,6 +209,7 @@ export default function Login() {
                 />
                 <FormHelperText>{touched.remember && errors.remember}</FormHelperText>
               </FormControl>
+              {auth.error && <Alert severity='error'>{auth.error}</Alert>}
               <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
                 <LoadingButton
                   color="primary"

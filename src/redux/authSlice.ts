@@ -153,11 +153,11 @@ export const authUnlink = createAsyncThunk(
 
 export const authValidate = createAsyncThunk(
   'auth/validate',
-  async (payload: object, thunkAPI) => {
-    console.log(payload)
+  async () => {
+    //console.log(payload)
     try {
       const token = localStorage.getItem('token')
-      if (!token) return thunkAPI.rejectWithValue({ message: 'No token' })
+      //if (!token) return thunkAPI.rejectWithValue({ message: 'No token' })
       const response = await fetch(BACKEND_URL + '/auth', {
         method: 'GET',
         headers: {
@@ -169,10 +169,10 @@ export const authValidate = createAsyncThunk(
       if (response.status === 200) {
         return json
       } else {
-        return thunkAPI.rejectWithValue(json)
+        //return thunkAPI.rejectWithValue(json)
       }
     } catch (e: any) {
-      thunkAPI.rejectWithValue(e.response.data)
+      //thunkAPI.rejectWithValue(e.response.data)
     }
   }
 )
