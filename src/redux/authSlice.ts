@@ -2,18 +2,22 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 
 const BACKEND_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000/api/v1'
 
-const initialState = {
-  id: '',
-  firstname: '',
-  lastname: '',
-  email: '',
-  username: '',
-  roles: [],
-  avatarUrl: '',
-  //createdAt: '',
-  //updatedAt: '',
+interface AuthState {
+  data: any;
+  loading: boolean;
+  error: string | null;
+}
 
-  languageId: 'en',
+const initialState: AuthState = {
+  //data: null,
+  data: {
+    id: '1234.123.123456',
+    firstname: 'Firstname',
+    lastname: 'Lastname',
+    roles: ['user']
+  },
+  loading: false,
+  error: null,
 }
 
 // --- begin auth endpoints ---
@@ -122,7 +126,7 @@ export const authLink = createAsyncThunk(
 )
 export const authUnlink = createAsyncThunk(
   'auth/unlink',
-  async (payload:object, thunkAPI) => {
+  async (payload: object, thunkAPI) => {
     try {
       const token = localStorage.getItem('token')
       const response = await fetch(BACKEND_URL + '/auth/unlink', {
@@ -146,64 +150,11 @@ export const authUnlink = createAsyncThunk(
     }
   }
 )
-/*
-export const googleLogin = createAsyncThunk(
-  'google/login',
-  async ({ googleToken }, thunkAPI) => {
-    try {
-      const response = await fetch(BACKEND_URL + '/auth', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          googleToken: googleToken
-        })
-      })
-      const json = await response.json()
-      if (response.status === 200) {
-        return json
-      } else {
-        return thunkAPI.rejectWithValue(json)
-      }
-    } catch (e: any) {
-      console.log(e: any)
-      thunkAPI.rejectWithValue(e.response.data)
-    }
-  }
-)
-export const googleLink = createAsyncThunk(
-  'google/link',
-  async ({ googleToken }, thunkAPI) => {
-    try {
-      const token = localStorage.getItem('token')
-      const response = await fetch(BACKEND_URL + '/auth/link', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          googleToken: googleToken
-        })
-      })
-      const json = await response.json()
-      if (response.status === 200) {
-        return json
-      } else {
-        return thunkAPI.rejectWithValue(json)
-      }
-    } catch (e: any) {
-      console.log(e: any)
-      thunkAPI.rejectWithValue(e.response.data)
-    }
-  }
-)
-*/
 
 export const authValidate = createAsyncThunk(
   'auth/validate',
   async (payload: object, thunkAPI) => {
+    console.log(payload)
     try {
       const token = localStorage.getItem('token')
       if (!token) return thunkAPI.rejectWithValue({ message: 'No token' })
@@ -240,97 +191,76 @@ export const authSlice = createSlice({
       state = initialState
       return state
     },
-    setLanguageId: (state, { payload }) => {
-      state.languageId = payload
-      return state
-    },
   },
 
   extraReducers: (builder) => {
     builder
       .addCase(authRegister.fulfilled, (state, { payload }) => {
-        state.message = payload?.message || 'Registered successfully'
-        return state
+        state.loading = false
+        state.data = payload
       })
-      .addCase(authRegister.pending, (state, { payload }) => {
+      .addCase(authRegister.pending, (state) => {
+        state.loading = true
+        state.error = null
       })
-      .addCase(authRegister.rejected, (state, { payload }) => {
-        throw new Error(payload?.message || 'Server error')
+      .addCase(authRegister.rejected, (state, { error }) => {
+        state.loading = false
+        state.error = error.message || 'An error occurred'
       })
       .addCase(authForgot.fulfilled, (state, { payload }) => {
-        state.message = payload?.message || 'Reset successfully'
-        return state
+        state.loading = false
+        state.data = payload
       })
-      .addCase(authForgot.pending, (state, { payload }) => {
+      .addCase(authForgot.pending, (state) => {
+        state.loading = true
+        state.error = null
       })
-      .addCase(authForgot.rejected, (state, { payload }) => {
-        throw new Error(payload?.message || 'Server error')
+      .addCase(authForgot.rejected, (state, { error }) => {
+        state.loading = false
+        state.error = error.message || 'An error occurred'
       })
       .addCase(authLogin.fulfilled, (state, { payload }) => {
+        state.loading = false
         if (payload) {
           localStorage.setItem('token', payload.token)
-          state.message = payload?.message || 'Logged in successfully'
-          return state
+          state.data = payload
         }
         else {
-          throw new Error('Invalid login')
+          //throw new Error('Invalid login')
+          state.data = null
+          state.error = 'Invalid login'
         }
       })
-      .addCase(authLogin.pending, (state, { payload }) => {
+      .addCase(authLogin.pending, (state) => {
+        state.loading = true
+        state.error = null
       })
-      .addCase(authLogin.rejected, (state, { payload }) => {
-        throw new Error(payload?.message || 'Server error')
+      .addCase(authLogin.rejected, (state, { error }) => {
+        state.loading = false
+        state.error = error.message || 'An error occurred'
       })
-      /*
-      .addCase(googleLogin.fulfilled, (state, { payload }) => {
-        if (payload) {
-          localStorage.setItem('token', payload.token)
-          state.message = payload?.message || 'Logged in successfully'
-          return state
-        }
-        else {
-          throw new Error('Invalid login')
-        }
-      })
-      .addCase(googleLogin.pending, (state, { payload }) => {
-      })
-      .addCase(googleLogin.rejected, (state, { payload }) => {
-        throw new Error(payload?.message || 'Server error')
-      })
-      */
-      .addCase(authLink.fulfilled, (state, { payload }) => {
-      })
-      .addCase(authLink.pending, (state, { payload }) => {
-      })
-      .addCase(authLink.rejected, (state, { payload }) => {
-        throw new Error(payload?.message || 'Server error')
-      })
-      .addCase(authUnlink.fulfilled, (state, { payload }) => {
-      })
-      .addCase(authUnlink.pending, (state, { payload }) => {
-      })
-      .addCase(authUnlink.rejected, (state, { payload }) => {
-        throw new Error(payload?.message || 'Server error')
-      })
+
       .addCase(authValidate.fulfilled, (state, { payload }) => {
         if (payload) {
-          state = { ...state, ...payload }
-          return state
+          state.data = { ...state.data, ...payload }
+          //return state
         }
         else {
           throw new Error('Invalid token')
         }
       })
-      .addCase(authValidate.pending, (state, { payload }) => {
+      .addCase(authValidate.pending, (state) => {
+        state.loading = true
+        state.error = null
       })
-      .addCase(authValidate.rejected, (state, { payload }) => {
+      .addCase(authValidate.rejected, (state, { error }) => {
         localStorage.removeItem('token')
-        throw new Error(payload?.message || 'Not logged in')
+        state.error = error.message || 'An error occurred'
       })
   }
 })
 
-export const { authReset, setLanguageId } = authSlice.actions
-export const auth = (state) => state.auth
+export const { authReset } = authSlice.actions
+export const auth = (state: AuthState) => state.data
 
 export default authSlice.reducer

@@ -19,20 +19,18 @@ import { GoogleOAuthProvider } from '@react-oauth/google'
 import { Provider } from 'react-redux'
 import App from './App'
 import { store } from './redux/store'
-//import App from './App.jsx'
-//import './index.css'
 
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
-  <HelmetProvider>
-    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID}>
-      <BrowserRouter>
-        <Provider store={store}>
-          <React.StrictMode>
+  <React.StrictMode>
+    <HelmetProvider>
+      <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID}>
+        <BrowserRouter>
+          <Provider store={store}>
             <App />
-          </React.StrictMode>
-        </Provider>
-      </BrowserRouter>
-    </GoogleOAuthProvider>
-  </HelmetProvider>
+          </Provider>
+        </BrowserRouter>
+      </GoogleOAuthProvider>
+    </HelmetProvider>
+  </React.StrictMode>
 )
