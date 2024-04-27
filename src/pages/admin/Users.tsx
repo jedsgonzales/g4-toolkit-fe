@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import React, { useState, useMemo } from 'react'
 import { useSnackbar } from 'notistack'
 // material
 import { styled } from '@mui/material/styles'
@@ -25,12 +25,12 @@ import CloseIcon from '@mui/icons-material/Close'
 import Page from 'src/components/Page'
 //import SearchNotFound from '@/components/SearchNotFound'
 import Scrollbar from 'src/components/Scrollbar'
-import CopyToClipboard from 'src/components/CopyToClipboard'
+//import CopyToClipboard from 'src/components/CopyToClipboard'
 import { ListHead, ListToolbar } from 'src/components/table'
-import UsersCreateForm from 'src/components/modals/admin/UsersCreateForm'
+//import UsersCreateForm from 'src/components/modals/admin/UsersCreateForm'
 // redux
 import { useSelector, useDispatch } from 'react-redux'
-import { usersList, usersRead } from 'src/redux/users/slice'
+import { usersList, usersRead } from 'src/redux/usersSlice'
 // utils
 //import numeral from 'numeral'
 import { format } from 'date-fns'
@@ -63,7 +63,7 @@ export default function Users() {
     const dispatch = useDispatch()
     const { enqueueSnackbar, closeSnackbar } = useSnackbar()
 
-    const users = useSelector((state) => state.users)
+    const users = useSelector((state: any) => state.users)
 
     const [loading, setLoading] = useState(false)
 
@@ -78,21 +78,21 @@ export default function Users() {
     const [filterBy, setFilterBy] = useState('email')
     const [limit, setLimit] = useState(10)
 
-    const handleRequestSort = (event, property) => {
+    const handleRequestSort = (event: React.ChangeEvent<HTMLInputElement>, property: string) => {
         setPage(0)
         const isAsc = orderBy === property && order === 'asc'
         setOrder(isAsc ? 'desc' : 'asc')
         setOrderBy(property)
     }
 
-    const handleFilter = (event) => {
+    const handleFilter = (event: React.ChangeEvent<HTMLInputElement>) => {
         setPage(0)
         setFilter(event.target.value)
     }
 
     const handleOpenForm = (id: string) => {
         if (id) {
-            setSelectedItem(users.items.find(obj => obj.id === id))
+            setSelectedItem(users.items.find((obj: Object) => obj.id === id))
         }
         else {
             setSelectedItem()
@@ -100,11 +100,11 @@ export default function Users() {
         setOpenForm(true)
     }
 
-    const handleChangePage = (event, newPage) => {
+    const handleChangePage = (event: React.ChangeEvent<HTMLInputElement>, newPage: any) => {
         setPage(newPage)
     }
 
-    const handleChangeLimit = (event) => {
+    const handleChangeLimit = (event: React.ChangeEvent<HTMLInputElement>) => {
         setLimit(parseInt(event.target.value, 10))
         setPage(0)
     }
@@ -116,7 +116,7 @@ export default function Users() {
                 await dispatch(usersList({ limit, page, orderBy, order, findBy: filterBy, find: filter }))
                 //setLoading(false)
             }
-            catch (error) {
+            catch (error: any) {
                 enqueueSnackbar(error.message, {
                     variant: 'error',
                     action: (key) => (
@@ -141,7 +141,7 @@ export default function Users() {
                 }
                 //setLoading(false)
             }
-            catch (error) {
+            catch (error: any) {
                 enqueueSnackbar(error.message, {
                     variant: 'error',
                     action: (key) => (
