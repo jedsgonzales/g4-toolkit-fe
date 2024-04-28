@@ -27,6 +27,7 @@ import * as Yup from 'yup'
 // hooks
 import useIsMountedRef from 'src/hooks/useIsMountedRef'
 // redux
+import {ThunkDispatch} from "@reduxjs/toolkit"
 import { useDispatch } from 'react-redux'
 import { usersCreate, usersUpdate, usersDelete } from 'src/redux/usersSlice'
 // components
@@ -74,32 +75,50 @@ UsersCreate.propTypes = {
   handleClose: PropTypes.func.isRequired,
 }
 
+interface Values {
+  id: string
+  date: string
+  email: string
+  username: string
+  firstname: string
+  lastname: string
+  roles: Array<string>
+}
+
+const initialValues: Values = {
+  id: '',
+  date: '',
+  email: '',
+  username: '',
+  firstname: '',
+  lastname: '',
+  roles: ['user']
+}
+
+const validationSchema = Yup.object({
+  email: Yup.string().email('Email must be a valid email address').required('Email is required'),
+  username: Yup.string(),
+  firstname: Yup.string(),
+  lastname: Yup.string(),
+  roles: Yup.array().required('Role(s) is required'),
+  //recaptcha: Yup.string().required('Recaptcha is required')
+})
+
 export default function UsersCreate({ user, open, handleClose }: any) {
   const isUpdate = user ? true : false
 
-  const dispatch = useDispatch()
+  //const dispatch = useDispatch()
+  const dispatch = useDispatch<ThunkDispatch<any, any, any>>()
   const { enqueueSnackbar, closeSnackbar } = useSnackbar()
   const isMountedRef = useIsMountedRef()
 
   const [openConfirm, setOpenConfirm] = useState(false)
 
-  const Schema = Yup.object().shape({
-    id: Yup.string(),
-    email: Yup.string(),
-    username: Yup.string(),
-    roles: Yup.array(),
-  })
 
   const formik = useFormik({
     enableReinitialize: true,
-    initialValues: {
-      id: user?.id || '',
-      date: user?.date || '',
-      email: user?.email || '',
-      username: user?.username || '',
-      roles: user?.roles || [],
-    },
-    validationSchema: Schema,
+    initialValues ,
+    validationSchema,
     onSubmit: async (values, { setSubmitting, resetForm }) => {
       try {
         if (isUpdate) {
@@ -141,7 +160,7 @@ export default function UsersCreate({ user, open, handleClose }: any) {
       }
       handleClose()
     }
-    catch (error) {
+    catch (error: any) {
       if (isMountedRef.current) {
         enqueueSnackbar(error.message, {
           variant: 'error',
@@ -170,7 +189,7 @@ export default function UsersCreate({ user, open, handleClose }: any) {
 
   return (
     <BootstrapDialog open={open} onClose={handleClose} fullWidth maxWidth="md">
-      <BootstrapDialogTitle id="customized-dialog-title" onClose={handleClose}>User</BootstrapDialogTitle>
+      <BootstrapDialogTitle /* id="customized-dialog-title" */ onClose={handleClose}>User</BootstrapDialogTitle>
       <Confirm open={openConfirm} handleClose={() => setOpenConfirm(false)} handleConfirm={handleDelete} />
       <FormikProvider value={formik}>
         <Form noValidate autoComplete="off" onSubmit={handleSubmit}>
@@ -209,7 +228,7 @@ export default function UsersCreate({ user, open, handleClose }: any) {
                       label="Email"
                       {...getFieldProps('email')}
                       error={Boolean(touched.email && errors.email)}
-                      helperText={touched.demailate && errors.email}
+                      helperText={touched.email && errors.email}
                     />
                   </Grid>
                   <Grid item xs={12} sm={12}>
