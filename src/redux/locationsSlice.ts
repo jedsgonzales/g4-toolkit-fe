@@ -2,7 +2,7 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 
 const BACKEND_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000/api/v1'
 
-interface RolesState {
+interface LocationsState {
   //items: Array<Object>,
   //totalItems: number;
   data: any;
@@ -10,28 +10,31 @@ interface RolesState {
   error: string | null;
 }
 
-const initialState: RolesState = {
+const initialState: LocationsState = {
   //items: [],
   //totalItems: 0,
   //data: null,
   data: {
     items: [
-      { id: '1', date: '2024-01-01', name: 'admin' },
-      { id: '2', date: '2024-01-01', name: 'user' },
+      { id: '1', date: '2024-01-01', name: 'room 1' },
+      { id: '2', date: '2024-01-01', name: 'room 2' },
+      { id: '3', date: '2024-01-01', name: 'room 3' },
+      { id: '4', date: '2024-01-01', name: 'kitchen 1' },
+      { id: '5', date: '2024-01-01', name: 'kitchen 2' },
     ],
-    totalItems: 2
+    totalItems: 5
   },
   loading: false,
   error: null,
 }
 
-export const rolesList = createAsyncThunk(
-  'roles/list',
+export const locationsList = createAsyncThunk(
+  'locations/list',
   async (payload: any, thunkAPI) => {
     try {
       const searchParams = new URLSearchParams(payload || {})
       const token = localStorage.getItem('token') // address
-      const response = await fetch(BACKEND_URL + '/roles?' + searchParams, {
+      const response = await fetch(BACKEND_URL + '/locations?' + searchParams, {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -50,12 +53,12 @@ export const rolesList = createAsyncThunk(
   }
 )
 
-export const rolesCreate = createAsyncThunk(
-  'roles/create',
+export const locationsCreate = createAsyncThunk(
+  'locations/create',
   async (payload: any, thunkAPI) => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch(BACKEND_URL + '/roles', {
+      const response = await fetch(BACKEND_URL + '/locations', {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -77,12 +80,12 @@ export const rolesCreate = createAsyncThunk(
   }
 )
 
-export const rolesUpdate = createAsyncThunk(
-  'roles/update',
+export const locationsUpdate = createAsyncThunk(
+  'locations/update',
   async (payload: any, thunkAPI) => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch(BACKEND_URL + '/roles/' + payload.id, {
+      const response = await fetch(BACKEND_URL + '/locations/' + payload.id, {
         method: 'PATCH',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -104,12 +107,12 @@ export const rolesUpdate = createAsyncThunk(
   }
 )
 
-export const rolesDelete = createAsyncThunk(
-  'roles/delete',
+export const locationsDelete = createAsyncThunk(
+  'locations/delete',
   async (payload: any, thunkAPI) => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch(BACKEND_URL + '/roles/' + payload.id, {
+      const response = await fetch(BACKEND_URL + '/locations/' + payload.id, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -128,12 +131,12 @@ export const rolesDelete = createAsyncThunk(
   }
 )
 
-export const rolesRead = createAsyncThunk(
-  'roles/read',
+export const locationsRead = createAsyncThunk(
+  'locations/read',
   async (payload: any, thunkAPI) => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch(BACKEND_URL + '/roles/' + payload.id, {
+      const response = await fetch(BACKEND_URL + '/locations/' + payload.id, {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -152,12 +155,12 @@ export const rolesRead = createAsyncThunk(
   }
 )
 
-export const rolesDownload = createAsyncThunk(
-  'roles/download',
+export const locationsDownload = createAsyncThunk(
+  'locations/download',
   async (payload: any, thunkAPI) => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch(BACKEND_URL + '/roles/excel', {
+      const response = await fetch(BACKEND_URL + '/locations/excel', {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -169,7 +172,7 @@ export const rolesDownload = createAsyncThunk(
         //window.location.assign(file)
         var a = document.createElement('a')
         a.href = file;
-        a.download = "roles.xlsx"
+        a.download = "locations.xlsx"
         document.body.appendChild(a)
         a.click()
         a.remove()
@@ -183,12 +186,12 @@ export const rolesDownload = createAsyncThunk(
   }
 )
 
-export const rolesSlice = createSlice({
-  name: 'roles',
+export const locationsSlice = createSlice({
+  name: 'locations',
   initialState,
   // The `reducers` field lets us define reducers and generate associated actions
   reducers: {
-    rolesReset: (state) => {
+    locationsReset: (state) => {
       state = initialState
       return state
     },
@@ -196,88 +199,88 @@ export const rolesSlice = createSlice({
 
   extraReducers: (builder) => {
     builder
-      .addCase(rolesList.fulfilled, (state, { payload }) => {
+      .addCase(locationsList.fulfilled, (state, { payload }) => {
         state.loading = false
         state.data = payload
       })
-      .addCase(rolesList.pending, (state) => {
+      .addCase(locationsList.pending, (state) => {
         state.loading = true
         state.error = null
       })
-      .addCase(rolesList.rejected, (state, { error }) => {
+      .addCase(locationsList.rejected, (state, { error }) => {
         state.loading = false
         state.error = error.message || 'An error occurred'
       })
-      .addCase(rolesCreate.fulfilled, (state, { payload }) => {
+      .addCase(locationsCreate.fulfilled, (state, { payload }) => {
         state.loading = false
         //state.data = payload
         state.data.items.push(payload)
       })
-      .addCase(rolesCreate.pending, (state) => {
+      .addCase(locationsCreate.pending, (state) => {
         state.loading = true
         state.error = null
       })
-      .addCase(rolesCreate.rejected, (state, { error }) => {
+      .addCase(locationsCreate.rejected, (state, { error }) => {
         state.loading = false
         state.error = error.message || 'An error occurred'
       })
-      .addCase(rolesUpdate.fulfilled, (state, { payload }) => {
+      .addCase(locationsUpdate.fulfilled, (state, { payload }) => {
         state.loading = false
         const objIndex = state.data.items.findIndex(((obj: any) => obj.id === payload.id))
         if (objIndex > -1) {
           state.data.items[objIndex] = payload
         }
       })
-      .addCase(rolesUpdate.pending, (state) => {
+      .addCase(locationsUpdate.pending, (state) => {
         state.loading = true
         state.error = null
       })
-      .addCase(rolesUpdate.rejected, (state, { error }) => {
+      .addCase(locationsUpdate.rejected, (state, { error }) => {
         state.loading = false
         state.error = error.message || 'An error occurred'
       })
-      .addCase(rolesDelete.fulfilled, (state, { payload }) => {
+      .addCase(locationsDelete.fulfilled, (state, { payload }) => {
         state.loading = false
         const objIndex = state.data.items.findIndex(((obj: any) => obj.id === payload.id))
         state.data.items.splice(objIndex, 1)
       })
-      .addCase(rolesDelete.pending, (state) => {
+      .addCase(locationsDelete.pending, (state) => {
         state.loading = true
         state.error = null
       })
-      .addCase(rolesDelete.rejected, (state, { error }) => {
+      .addCase(locationsDelete.rejected, (state, { error }) => {
         state.loading = false
         state.error = error.message || 'An error occurred'
       })
-      .addCase(rolesRead.fulfilled, (state, { payload }) => {
+      .addCase(locationsRead.fulfilled, (state, { payload }) => {
         state.loading = false
         // no need to save this, just access it directly
         //state.items = [payload]
         //return state
       })
-      .addCase(rolesRead.pending, (state) => {
+      .addCase(locationsRead.pending, (state) => {
         state.loading = true
         state.error = null
       })
-      .addCase(rolesRead.rejected, (state, { error }) => {
+      .addCase(locationsRead.rejected, (state, { error }) => {
         state.loading = false
         state.error = error.message || 'An error occurred'
       })
-      .addCase(rolesDownload.fulfilled, (state, { payload }) => {
+      .addCase(locationsDownload.fulfilled, (state, { payload }) => {
         state.loading = false
       })
-      .addCase(rolesDownload.pending, (state) => {
+      .addCase(locationsDownload.pending, (state) => {
         state.loading = true
         state.error = null
       })
-      .addCase(rolesDownload.rejected, (state, { error }) => {
+      .addCase(locationsDownload.rejected, (state, { error }) => {
         state.loading = false
         state.error = error.message || 'An error occurred'
       })
   }
 })
 
-export const { rolesReset } = rolesSlice.actions
-export const roles = (state: RolesState) => state.data
+export const { locationsReset } = locationsSlice.actions
+export const locations = (state: LocationsState) => state.data
 
-export default rolesSlice.reducer
+export default locationsSlice.reducer

@@ -1,40 +1,40 @@
-//import PropTypes from 'prop-types';
-//import { useState } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
+//import PropTypes from 'prop-types'
+//import { useState } from 'react'
+import { Link as RouterLink } from 'react-router-dom'
 // material
-import { styled } from '@mui/material/styles';
-import { Box, Drawer } from '@mui/material';
+import { styled } from '@mui/material/styles'
+import { Box, Drawer } from '@mui/material'
 // components
-import Logo from '@/components/Logo';
-import Scrollbar from '@/components/Scrollbar';
-import NavSection from '@/components/NavSection';
-import { MHidden } from '@/components/@material-extend';
+import Logo from 'src/components/Logo'
+import Scrollbar from 'src/components/Scrollbar'
+import NavSection from 'src/components/NavSection'
+import { MHidden } from 'src/components/@material-extend'
 // redux
-//import { useSelector } from 'react-redux';
-//import { discoveryData, isConnected, peers } from '../../redux/slicers/webrtc/webrtcSlice';
+//import { useSelector } from 'react-redux'
+//import { discoveryData, isConnected, peers } from '../../redux/slicers/webrtc/webrtcSlice'
 
-//import sidebarConfig from './SidebarConfig';
+//import sidebarConfig from './SidebarConfig'
 
-//import { Icon } from '@iconify/react';
-//import eyeFill from '@iconify/icons-eva/eye-fill';
-//import castFill from '@iconify/icons-eva/cast-fill';
-//import globeFill from '@iconify/icons-eva/globe-fill';
+//import { Icon } from '@iconify/react'
+//import eyeFill from '@iconify/icons-eva/eye-fill'
+//import castFill from '@iconify/icons-eva/cast-fill'
+//import globeFill from '@iconify/icons-eva/globe-fill'
 // https://akveo.github.io/eva-icons/#/?type=fill
 
 // ----------------------------------------------------------------------
 
-const DRAWER_WIDTH = 300;
+const DRAWER_WIDTH = 300
 
 const RootStyle = styled('div')(({ theme }) => ({
   [theme.breakpoints.up('sm')]: {
     flexShrink: 0,
     //width: DRAWER_WIDTH
   }
-}));
+}))
 
 // ----------------------------------------------------------------------
 
-export default function Sidebar({ navConfig, isOpenSidebar, onCloseSidebar }) {
+export default function Sidebar({ navConfig, isOpenSidebar, onCloseSidebar }: any) {
 
   const renderContent = (
     <Scrollbar className="sidebar-drawer"
@@ -50,7 +50,7 @@ export default function Sidebar({ navConfig, isOpenSidebar, onCloseSidebar }) {
       </Box>
       <NavSection navConfig={navConfig} />
     </Scrollbar>
-  );
+  )
 
   return (
     <RootStyle>
@@ -66,5 +66,5 @@ export default function Sidebar({ navConfig, isOpenSidebar, onCloseSidebar }) {
         </Drawer>
       </MHidden>
     </RootStyle>
-  );
+  )
 }

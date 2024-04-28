@@ -16,6 +16,8 @@ import Page404 from './pages/Page404'
 
 // admin pages
 import UsersList from './pages/admin/UsersList'
+//import RolesList from './pages/admin/RolesList'
+import LocationsList from './pages/admin/LocationsList'
 
 
 function App() {
@@ -26,7 +28,8 @@ function App() {
       <Routes>
         <Route path='/admin' element={<AdminLayout />}>
           <Route path='' element={<Navigate to='users' />} />
-            <Route path='users' element={<UsersList />} />
+          <Route path='users' element={<UsersList />} />
+          <Route path='locations' element={<LocationsList />} />
           {/*
             <Route path='projects' element={<ProjectsList />} />
             <Route path="products">

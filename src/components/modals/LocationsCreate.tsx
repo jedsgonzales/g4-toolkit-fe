@@ -13,8 +13,6 @@ import {
   Grid,
   TextField,
   Box,
-  FormControlLabel,
-  Checkbox,
 } from '@mui/material'
 // icons
 import CloseIcon from '@mui/icons-material/Close'
@@ -27,9 +25,9 @@ import * as Yup from 'yup'
 // hooks
 import useIsMountedRef from 'src/hooks/useIsMountedRef'
 // redux
-import { ThunkDispatch } from '@reduxjs/toolkit'
+import { ThunkDispatch } from "@reduxjs/toolkit"
 import { useDispatch } from 'react-redux'
-import { usersCreate, usersUpdate, usersDelete } from 'src/redux/usersSlice'
+import { locationsCreate, locationsUpdate, locationsDelete } from 'src/redux/locationsSlice'
 // components
 import Scrollbar from 'src/components/Scrollbar'
 import Confirm from 'src/components/modals/common/Confirm'
@@ -69,8 +67,8 @@ BootstrapDialogTitle.propTypes = {
   onClose: PropTypes.func.isRequired,
 }
 
-UsersCreate.propTypes = {
-  user: PropTypes.object,
+LocationsCreate.propTypes = {
+  location: PropTypes.object,
   open: PropTypes.bool.isRequired,
   handleClose: PropTypes.func.isRequired,
 }
@@ -78,34 +76,21 @@ UsersCreate.propTypes = {
 interface Values {
   id: string
   date: string
-  email: string
-  username: string
-  firstname: string
-  lastname: string
-  roles: Array<string>
+  name: string
 }
 
 const initialValues: Values = {
   id: '',
   date: '',
-  email: '',
-  username: '',
-  firstname: '',
-  lastname: '',
-  roles: ['user']
+  name: ''
 }
 
 const validationSchema = Yup.object({
-  email: Yup.string().email('Email must be a valid email address').required('Email is required'),
-  username: Yup.string(),
-  firstname: Yup.string(),
-  lastname: Yup.string(),
-  roles: Yup.array().required('Role(s) is required'),
-  //recaptcha: Yup.string().required('Recaptcha is required')
+  name: Yup.string().required('Name is required'),
 })
 
-export default function UsersCreate({ user, open, handleClose }: any) {
-  const isUpdate = user ? true : false
+export default function LocationsCreate({ location, open, handleClose }: any) {
+  const isUpdate = location ? true : false
 
   //const dispatch = useDispatch()
   const dispatch = useDispatch<ThunkDispatch<any, any, any>>()
@@ -122,10 +107,10 @@ export default function UsersCreate({ user, open, handleClose }: any) {
     onSubmit: async (values, { setSubmitting, resetForm }) => {
       try {
         if (isUpdate) {
-          await dispatch(usersUpdate(values))
+          await dispatch(locationsUpdate(values))
         }
         else {
-          await dispatch(usersCreate(values))
+          await dispatch(locationsCreate(values))
         }
         resetForm()
         if (isMountedRef.current) {
@@ -148,13 +133,13 @@ export default function UsersCreate({ user, open, handleClose }: any) {
     }
   })
 
-  const { errors, values, setFieldValue, touched, handleSubmit, isSubmitting, setSubmitting, getFieldProps } = formik
+  const { errors, touched, handleSubmit, isSubmitting, setSubmitting, getFieldProps } = formik
 
   const handleDelete = async () => {
     try {
       setOpenConfirm(false)
       setSubmitting(true)
-      await dispatch(usersDelete({ id: user?.id }))
+      await dispatch(locationsDelete({ id: location?.id }))
       if (isMountedRef.current) {
         setSubmitting(false)
       }
@@ -175,21 +160,9 @@ export default function UsersCreate({ user, open, handleClose }: any) {
     }
   }
 
-  const handleChangeRoles = (event: any) => {
-    let arr = [...values.roles]
-    if (event.target.checked) {
-      arr.push(event.target.name)
-    }
-    else {
-      const idx = arr.indexOf(event.target.name)
-      if (idx > -1) arr.splice(idx, 1)
-    }
-    setFieldValue('roles', arr)
-  }
-
   return (
     <BootstrapDialog open={open} onClose={handleClose} fullWidth maxWidth="md">
-      <BootstrapDialogTitle /* id="customized-dialog-title" */ onClose={handleClose}>User</BootstrapDialogTitle>
+      <BootstrapDialogTitle /* id="customized-dialog-title" */ onClose={handleClose}>Location</BootstrapDialogTitle>
       <Confirm open={openConfirm} handleClose={() => setOpenConfirm(false)} handleConfirm={handleDelete} />
       <FormikProvider value={formik}>
         <Form noValidate autoComplete="off" onSubmit={handleSubmit}>
@@ -225,41 +198,10 @@ export default function UsersCreate({ user, open, handleClose }: any) {
                   <Grid item xs={12} sm={12}>
                     <TextField
                       fullWidth
-                      label="Email"
-                      {...getFieldProps('email')}
-                      error={Boolean(touched.email && errors.email)}
-                      helperText={touched.email && errors.email}
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={12}>
-                    <TextField
-                      fullWidth
-                      label="Address"
-                      {...getFieldProps('username')}
-                      error={Boolean(touched.username && errors.username)}
-                      helperText={touched.username && errors.username}
-                    />
-                  </Grid>
-
-
-                  <Grid item xs={12} sm={12} alignItems='center'>
-                    <FormControlLabel
-                      control={
-                        <Checkbox checked={values.roles.includes('admin')} onChange={handleChangeRoles} name="admin" />
-                      }
-                      label="Admin"
-                    />
-                    <FormControlLabel
-                      control={
-                        <Checkbox checked={values.roles.includes('user')} onChange={handleChangeRoles} name="user" />
-                      }
-                      label="User"
-                    />
-                    <FormControlLabel
-                      control={
-                        <Checkbox checked={values.roles.includes('distributor')} onChange={handleChangeRoles} name="distributor" />
-                      }
-                      label="Distributor"
+                      label="Name"
+                      {...getFieldProps('name')}
+                      error={Boolean(touched.name && errors.name)}
+                      helperText={touched.name && errors.name}
                     />
                   </Grid>
                 </Grid>

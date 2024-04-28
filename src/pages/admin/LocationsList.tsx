@@ -27,11 +27,11 @@ import SearchNotFound from 'src/components/SearchNotFound'
 import Scrollbar from 'src/components/Scrollbar'
 import CopyToClipboard from 'src/components/CopyToClipboard'
 import { ListHead, ListToolbar } from 'src/components/table'
-import UsersCreate from 'src/components/modals/UsersCreate'
+import LocationsCreate from 'src/components/modals/LocationsCreate'
 // redux
 import { ThunkDispatch } from '@reduxjs/toolkit'
 import { useSelector, useDispatch } from 'react-redux'
-//import { usersList, usersRead } from 'src/redux/usersSlice'
+//import { locationsList, locationsRead } from 'src/redux/locationsSlice'
 // utils
 //import numeral from 'numeral'
 import { format } from 'date-fns'
@@ -40,9 +40,7 @@ import { format } from 'date-fns'
 // ----------------------------------------------------------------------
 const TABLE_HEAD = [
   { id: 'date', label: 'Date', alignRight: false, sort: true },
-  { id: 'username', label: 'Address', alignRight: false, sort: true },
-  { id: 'email', label: 'Email', alignRight: false, sort: true },
-  { id: 'roles', label: 'Roles', alignRight: false },
+  { id: 'name', label: 'Name', alignRight: false, sort: true },
 ]
 // ----------------------------------------------------------------------
 const TablePaginationStyle = styled(TablePagination)({
@@ -54,13 +52,13 @@ const TablePaginationStyle = styled(TablePagination)({
 }) as typeof TablePagination
 // ----------------------------------------------------------------------
 
-export default function UsersList() {
+export default function LocationsList() {
   //const { themeStretch } = useSettings()
   //const theme = useTheme()
   const dispatch = useDispatch<ThunkDispatch<any, any, any>>()
   const { enqueueSnackbar, closeSnackbar } = useSnackbar()
 
-  const users = useSelector((state: any) => state.users)
+  const locations = useSelector((state: any) => state.locations)
 
   const [loading, setLoading] = useState(false)
 
@@ -72,7 +70,7 @@ export default function UsersList() {
   const [order, setOrder] = useState('desc')
   const [orderBy, setOrderBy] = useState('createdAt')
   const [filter, setFilter] = useState('')
-  const [filterBy, setFilterBy] = useState('username')
+  const [filterBy, setFilterBy] = useState('locationname')
   const [limit, setLimit] = useState(10)
 
   const handleRequestSort = (event: any, property: string) => {
@@ -89,7 +87,7 @@ export default function UsersList() {
 
   const handleOpenForm = (id: any) => {
     if (id) {
-      setSelectedItem(users.data.items.find((obj: any) => obj.id === id))
+      setSelectedItem(locations.data.items.find((obj: any) => obj.id === id))
     }
     else {
       setSelectedItem({})
@@ -110,8 +108,8 @@ export default function UsersList() {
     (async () => {
       try {
         setLoading(true)
-        console.log('fetch users')
-        //await dispatch(usersList({ limit, page, orderBy, order, findBy: filterBy, find: filter }))
+        console.log('fetch locations')
+        //await dispatch(locationsList({ limit, page, orderBy, order, findBy: filterBy, find: filter }))
         setLoading(false)
       }
       catch (error: any) {
@@ -133,7 +131,7 @@ export default function UsersList() {
       try {
         //setLoading(true)
         if (!stats) {
-          //const response = await dispatch(usersRead({ id: 'stats' }))
+          //const response = await dispatch(locationsRead({ id: 'stats' }))
           //setStats(response.payload)
           //console.log(response.payload)
         }
@@ -154,9 +152,9 @@ export default function UsersList() {
   }, [])
 
   return (
-    <Page title={'Backoffice - Users'} >
+    <Page title={'Backoffice - Locations'} >
       {/* Modals */}
-      <UsersCreate user={selectedItem} open={openForm} handleClose={() => setOpenForm(false)} />
+      <LocationsCreate location={selectedItem} open={openForm} handleClose={() => setOpenForm(false)} />
 
       <Stack direction='column' alignItems='center' justifyContent='center'>
 
@@ -171,7 +169,7 @@ export default function UsersList() {
         }}>
           <Stack direction='column' alignItems='center' justifyContent='center'>
             <Typography variant='h2' align='center'>
-              Users List
+              Locations List
             </Typography>
             <Button variant='contained' disabled={true}>Download Excel</Button>
           </Stack>
@@ -208,15 +206,15 @@ export default function UsersList() {
                         </TableCell>
                       </TableRow>
                     )}
-                    {users.data.items.length === 0 && (
+                    {locations.data.items.length === 0 && (
                       <TableRow>
                         <TableCell align="center" colSpan={TABLE_HEAD.length + 1} sx={{ py: 3 }}>
                           <SearchNotFound searchQuery={filter} />
                         </TableCell>
                       </TableRow>
                     )}
-                    {users.data.items.map((obj: any, idx: number) => {
-                      const { id, date, username, email, roles } = obj
+                    {locations.data.items.map((obj: any, idx: number) => {
+                      const { id, date, name } = obj
 
                       return (
                         <TableRow
@@ -236,21 +234,11 @@ export default function UsersList() {
                           </TableCell>
                           <TableCell align="left">
                             <Stack direction='row' alignItems='center' spacing={1}>
-                              <CopyToClipboard data={username} />
+                              <CopyToClipboard data={name} />
                               <Typography variant="body2" noWrap >
-                                ...{username.slice(-16)}
+                                ...{name.slice(-16)}
                               </Typography>
                             </Stack>
-                          </TableCell>
-                          <TableCell align="left">
-                            <Typography variant="body2" noWrap >
-                              {email}
-                            </Typography>
-                          </TableCell>
-                          <TableCell align="left">
-                            <Typography variant="body2" noWrap >
-                              {roles.join(',')}
-                            </Typography>
                           </TableCell>
                         </TableRow>
                       )
@@ -263,7 +251,7 @@ export default function UsersList() {
             <TablePaginationStyle
               rowsPerPageOptions={[5, 10, 25]}
               component="div"
-              count={users.data.totalItems}
+              count={locations.data.totalItems}
               rowsPerPage={limit}
               page={page}
               onPageChange={handleChangePage}

@@ -1,33 +1,33 @@
 // material
-import { styled, useTheme, alpha } from '@mui/material/styles';
+import { styled, useTheme, alpha } from '@mui/material/styles'
 import {
   AppBar,
   Toolbar,
   IconButton,
   Box,
-} from '@mui/material';
+} from '@mui/material'
 // icons
-import MenuIcon from '@mui/icons-material/Menu';
+//import MenuIcon from '@mui/icons-material/Menu'
 // components
-import { MHidden } from '@/components/@material-extend';
-import NavSectionH from '@/components/NavSectionH';
-import AccountPopover from './AccountPopover';
+//import { MHidden } from 'src/components/@material-extend'
+//import NavSectionH from 'src/components/NavSectionH'
+import AccountPopover from './AccountPopover'
 
 // ----------------------------------------------------------------------
 
-//const DRAWER_WIDTH = 280;
-const APPBAR_MOBILE = 64;
-const APPBAR_DESKTOP = 64;
+//const DRAWER_WIDTH = 280
+const APPBAR_MOBILE = 64
+const APPBAR_DESKTOP = 64
 
 const RootStyle = styled(AppBar)(({ theme }) => ({
   boxShadow: 'none',
   backdropFilter: 'blur(6px)',
   WebkitBackdropFilter: 'blur(6px)', // Fix on Mobile
-  background: alpha(theme.palette.background.default, 0.10),
+  //background: alpha(theme.palette.background.default, 0.10),
   //backgroundColor: 'transparent',
   //background: '#111722',
   //alignItems: 'center',
-}));
+}))
 
 const ToolbarStyle = styled(Toolbar)(({ theme }) => ({
   minHeight: APPBAR_MOBILE,
@@ -35,15 +35,16 @@ const ToolbarStyle = styled(Toolbar)(({ theme }) => ({
     minHeight: APPBAR_DESKTOP,
     padding: theme.spacing(0, 5)
   }
-}));
+}))
 // ----------------------------------------------------------------------
 
-export default function Topbar({ navConfig, onOpenSidebar, isConnected, connect }) {
-  const theme = useTheme();
+export default function Topbar({ navConfig, onOpenSidebar, isConnected, connect }: any) {
+  //const theme = useTheme()
 
   return (
-    <RootStyle theme={theme}>
-      <ToolbarStyle theme={theme}>
+    <RootStyle>
+      <ToolbarStyle>
+        {/*
         <MHidden width="smUp">
           <IconButton onClick={onOpenSidebar} sx={{ mr: 1, color: 'text.primary' }}>
             <MenuIcon />
@@ -53,9 +54,10 @@ export default function Topbar({ navConfig, onOpenSidebar, isConnected, connect 
         <MHidden width="smDown">
           <NavSectionH navConfig={navConfig} />
         </MHidden>
+  */}
         <Box sx={{ flexGrow: 1 }} />
         <AccountPopover />
       </ToolbarStyle>
     </RootStyle>
-  );
+  )
 }
