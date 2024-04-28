@@ -10,12 +10,7 @@ interface AuthState {
 
 const initialState: AuthState = {
   //data: null,
-  data: {
-    id: '1234.123.123456',
-    firstname: 'Firstname',
-    lastname: 'Lastname',
-    roles: ['user']
-  },
+  data: { id: '123-123456-1234', date: '2024-01-01', email: 'john@test.com', username: 'john_doe', firstname: 'John', lastname: 'Doe', roles: ['admin'] },
   loading: false,
   error: null,
 }
