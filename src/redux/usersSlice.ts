@@ -2,6 +2,12 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 
 const BACKEND_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:4000/api/v1'
 
+interface UserState {
+    data: any;
+    loading: boolean;
+    error: string | null;
+}
+
 const initialState = []
 
 export const usersList = createAsyncThunk(
