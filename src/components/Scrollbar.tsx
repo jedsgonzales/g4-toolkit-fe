@@ -1,5 +1,4 @@
 import PropTypes from 'prop-types'
-// import 'simplebar/src/simplebar.css'
 import SimpleBarReact from 'simplebar-react'
 // material
 import { alpha, styled } from '@mui/material/styles'

@@ -1,12 +1,9 @@
 import PropTypes from 'prop-types'
-//import { Icon } from '@iconify/react'
-//import searchFill from '@iconify/icons-eva/search-fill'
-//import plusFill from '@iconify/icons-eva/plus-fill'
 import SearchIcon from '@mui/icons-material/Search'
 import AddIcon from '@mui/icons-material/Add'
 // material
 import { styled } from '@mui/material/styles'
-import { Box, Toolbar, Tooltip, IconButton, OutlinedInput, InputAdornment } from '@mui/material'
+import { Toolbar, Tooltip, IconButton, OutlinedInput, InputAdornment } from '@mui/material'
 
 // ----------------------------------------------------------------------
 
