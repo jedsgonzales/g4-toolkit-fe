@@ -8,58 +8,64 @@ import { Toolbar, Tooltip, IconButton, OutlinedInput, InputAdornment } from '@mu
 // ----------------------------------------------------------------------
 
 const RootStyle = styled(Toolbar)(({ theme }) => ({
-    height: 96,
-    display: 'flex',
-    justifyContent: 'space-between',
-    padding: theme.spacing(0, 1, 0, 3)
+  height: 96,
+  display: 'flex',
+  justifyContent: 'space-between',
+  padding: theme.spacing(0, 1, 0, 3)
 }))
 
-const SearchStyle = styled(OutlinedInput)(({ theme }) => ({
-    width: 240,
-    transition: theme.transitions.create(['box-shadow', 'width'], {
-        easing: theme.transitions.easing.easeInOut,
-        duration: theme.transitions.duration.shorter
-    }),
-    '&.Mui-focused': {
-        width: 320,
-        //boxShadow: theme.customShadows.z8 
-    },
-    '& fieldset': {
-        borderWidth: `1px !important`,
-        //borderColor: `${theme.palette.grey[500_32]} !important`
-    }
+const SearchStyle = styled(OutlinedInput)(() => ({
+  width: 240,
+  //transition: theme.transitions.create(['box-shadow', 'width'], {
+  //  easing: theme.transitions.easing.easeInOut,
+  //  duration: theme.transitions.duration.shorter
+  //}),
+  '&.Mui-focused': { 
+    width: 320, 
+    //boxShadow: theme.customShadows.z8
+},
+  '& fieldset': {
+    borderWidth: `1px !important`,
+    //borderColor: `${theme.palette.grey[500_32]} !important`
+  }
 }))
 
 // ----------------------------------------------------------------------
 
 ListToolbar.propTypes = {
-    filterName: PropTypes.string,
-    onFilterName: PropTypes.func,
-    handleAdd: PropTypes.func,
+  filter: PropTypes.string,
+  onFilter: PropTypes.func,
+  filterBy: PropTypes.string,
+  addText: PropTypes.string,
+  handleAdd: PropTypes.func,
 }
 
-export default function ListToolbar({ filterName, onFilterName, handleAdd }: any) {
-    return (
-        <RootStyle>
-            <SearchStyle
-                value={filterName}
-                onChange={onFilterName}
-                placeholder="Search name..."
-                startAdornment={
-                    <InputAdornment position="start">
-                        {/* <Box component={IconButton} icon={SearchIcon} sx={{ color: 'text.disabled' }} /> */}
-                        <IconButton><SearchIcon /></IconButton>
-                    </InputAdornment>
-                }
-            />
+export default function ListToolbar({ filter, onFilter, filterBy, addText, handleAdd }: any) {
+  return (
+    <RootStyle>
 
-            {handleAdd && (
-                <Tooltip title="Add">
-                    <IconButton onClick={() => handleAdd()}>
-                        <AddIcon />
-                    </IconButton>
-                </Tooltip>
-            )}
-        </RootStyle>
-    )
+      {(onFilter) ? (
+        <SearchStyle
+          value={filter}
+          onChange={onFilter}
+          placeholder={`${filterBy}...`}
+          startAdornment={
+            <InputAdornment position="start">
+              <SearchIcon />
+            </InputAdornment>
+          }
+        />
+      ) : (
+        <div></div>
+      )}
+
+      {handleAdd && (
+        <Tooltip title={addText}>
+          <IconButton onClick={() => handleAdd()}>
+            <AddIcon />
+          </IconButton>
+        </Tooltip>
+      )}
+    </RootStyle>
+  )
 }

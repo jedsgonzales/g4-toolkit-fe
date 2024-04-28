@@ -14,6 +14,10 @@ import AdminLayout from './layouts/admin'
 import Login from './pages/auth/Login'
 import Page404 from './pages/Page404'
 
+// admin pages
+import UsersList from './pages/admin/UsersList'
+
+
 function App() {
   //const [count, setCount] = useState(0)
 
@@ -22,8 +26,8 @@ function App() {
       <Routes>
         <Route path='/admin' element={<AdminLayout />}>
           <Route path='' element={<Navigate to='users' />} />
-          {/*
             <Route path='users' element={<UsersList />} />
+          {/*
             <Route path='projects' element={<ProjectsList />} />
             <Route path="products">
               <Route path="" element={<Navigate to="panels" />} />
