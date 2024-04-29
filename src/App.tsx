@@ -1,10 +1,8 @@
 import { Route, Routes, Navigate } from 'react-router-dom'
 import { SnackbarProvider } from 'notistack'
 
-//import { useState } from 'react'
-//import reactLogo from './assets/react.svg'
-//import viteLogo from '/vite.svg'
-import './App.css'
+// theme
+import ThemeConfig from './theme'
 
 // layouts
 import PlainLayout from './layouts/PlainLayout'
@@ -21,16 +19,15 @@ import LocationsList from './pages/admin/LocationsList'
 
 
 function App() {
-  //const [count, setCount] = useState(0)
-
   return (
-    <SnackbarProvider maxSnack={3}>
-      <Routes>
-        <Route path='/admin' element={<AdminLayout />}>
-          <Route path='' element={<Navigate to='users' />} />
-          <Route path='users' element={<UsersList />} />
-          <Route path='locations' element={<LocationsList />} />
-          {/*
+    <ThemeConfig>
+      <SnackbarProvider maxSnack={3}>
+        <Routes>
+          <Route path='/admin' element={<AdminLayout />}>
+            <Route path='' element={<Navigate to='users' />} />
+            <Route path='users' element={<UsersList />} />
+            <Route path='locations' element={<LocationsList />} />
+            {/*
             <Route path='projects' element={<ProjectsList />} />
             <Route path="products">
               <Route path="" element={<Navigate to="panels" />} />
@@ -39,14 +36,15 @@ function App() {
               <Route path="batteries" element={<BatteriesList />} />
             </Route>
   */}
-        </Route>
-        <Route path="/" element={<PlainLayout />}>
-          <Route path='' element={<Navigate to='admin' />} />
-          <Route path="login" element={<Login />} />
-          <Route path="*" element={<Page404 />} />
-        </Route>
-      </Routes>
-    </SnackbarProvider>
+          </Route>
+          <Route path="/" element={<PlainLayout />}>
+            <Route path='' element={<Navigate to='admin' />} />
+            <Route path="login" element={<Login />} />
+            <Route path="*" element={<Page404 />} />
+          </Route>
+        </Routes>
+      </SnackbarProvider>
+    </ThemeConfig>
   )
 }
 

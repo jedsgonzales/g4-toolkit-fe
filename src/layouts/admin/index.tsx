@@ -16,8 +16,8 @@ import {
 import KeyboardArrowUp from '@mui/icons-material/KeyboardArrowUp'
 // components
 // layout components
-//import menus from '@/assets/menusAdmin.json'
-//import Topbar from './Topbar'
+import menus from 'src/assets/menusAdmin.json'
+import Topbar from './Topbar'
 //import Sidebar from './Sidebar'
 //import Footer from '@/components/Footer'
 // redux
@@ -124,8 +124,8 @@ export default function Layout() {
 
     return (
         <RootStyle>
+            <Topbar menus={menus} onOpenSidebar={() => setOpen(true)} />
             {/*
-      <Topbar menus={menus} onOpenSidebar={() => setOpen(true)} />
       <Sidebar menus={menus} isOpenSidebar={open} onCloseSidebar={() => setOpen(false)} />
   */}
             {/* Fab */}

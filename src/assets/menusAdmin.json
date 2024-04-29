@@ -1,0 +1,44 @@
+[
+  {
+    "title": "users",
+    "path": "/admin/users"
+  },
+  {
+    "title": "locations",
+    "path": "/admin/locations"
+  },
+  {
+    "title": "products",
+    "path": "/admin/products",
+    "children": [
+      {
+        "title": "Panels",
+        "path": "/admin/products/panels"
+      },
+      {
+        "title": "Mounts",
+        "path": "/admin/products/mounts"
+      },
+      {
+        "title": "Inverters",
+        "path": "/admin/products/inverters"
+      },
+      {
+        "title": "Batteries",
+        "path": "/admin/products/batteries"
+      },
+      {
+        "title": "Wires",
+        "path": "/admin/products/wires"
+      },
+      {
+        "title": "Protections",
+        "path": "/admin/products/protections"
+      }
+    ]
+  },
+  {
+    "title": "transactions",
+    "path": "/admin/transactions"
+  }
+]
