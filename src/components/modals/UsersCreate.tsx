@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import PropTypes from 'prop-types'
 import { useSnackbar } from 'notistack'
 // materials
 import { styled } from '@mui/material/styles'
@@ -40,7 +39,12 @@ const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   }
 }))
 
-const BootstrapDialogTitle = (props: any) => {
+interface DialogProps {
+  children: React.ReactNode
+  onClose?: React.MouseEventHandler<HTMLButtonElement>
+}
+
+const BootstrapDialogTitle = (props: DialogProps) => {
   const { children, onClose, ...other } = props
 
   return (
@@ -64,17 +68,6 @@ const BootstrapDialogTitle = (props: any) => {
   )
 }
 
-BootstrapDialogTitle.propTypes = {
-  children: PropTypes.node,
-  onClose: PropTypes.func.isRequired,
-}
-
-UsersCreate.propTypes = {
-  user: PropTypes.object,
-  open: PropTypes.bool.isRequired,
-  handleClose: PropTypes.func.isRequired,
-}
-
 interface Values {
   id: string
   date: string
@@ -85,14 +78,11 @@ interface Values {
   roles: Array<string>
 }
 
-const initialValues: Values = {
-  id: '',
-  date: '',
-  email: '',
-  username: '',
-  firstname: '',
-  lastname: '',
-  roles: ['user']
+interface Props {
+  user: Values
+  open?: any
+  handleClose?: any
+  others: Object
 }
 
 const validationSchema = Yup.object({
@@ -104,7 +94,7 @@ const validationSchema = Yup.object({
   //recaptcha: Yup.string().required('Recaptcha is required')
 })
 
-export default function UsersCreate({ user, open, handleClose }: any) {
+export default function UsersCreate({ user, open, handleClose }: Props) {
   const isUpdate = user ? true : false
 
   //const dispatch = useDispatch()
@@ -114,6 +104,15 @@ export default function UsersCreate({ user, open, handleClose }: any) {
 
   const [openConfirm, setOpenConfirm] = useState(false)
 
+  const initialValues: Values = {
+    id: user.id || '',
+    date: user.date || '',
+    email: user.email || '',
+    username: user.username || '',
+    firstname: user.firstname || '',
+    lastname: user.lastname || '',
+    roles: user.roles || ['user']
+  }
 
   const formik = useFormik({
     enableReinitialize: true,

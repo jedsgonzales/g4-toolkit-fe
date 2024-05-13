@@ -96,7 +96,7 @@ export default function Login() {
 
       try {
         await dispatch(authLogin(values))
-        await dispatch(authValidate())
+        await dispatch(authValidate({}))
         //await dispatch(userRead({ id: user.id }))
 
         enqueueSnackbar('Login success', {
@@ -130,7 +130,7 @@ export default function Login() {
   const { values, errors, touched, isSubmitting, handleSubmit, getFieldProps } = formik
 
   useEffect(() => {
-    if (auth.data.roles.includes('admin') && !pathname.includes('/admin/')) {
+    if (auth.data?.roles?.includes('admin') && !pathname.includes('/admin/')) {
       console.log('move to admin')
       navigate('/admin', { replace: true })
     }
@@ -147,7 +147,7 @@ export default function Login() {
       navigate('/dashboard', { replace: true })
     }
     */
-  }, [navigate, auth.data.roles, pathname])
+  }, [navigate, auth.data?.roles, pathname])
 
   return (
     <Container maxWidth="sm">

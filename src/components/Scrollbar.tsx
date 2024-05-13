@@ -1,4 +1,3 @@
-import PropTypes from 'prop-types'
 import SimpleBarReact from 'simplebar-react'
 // material
 import { alpha, styled } from '@mui/material/styles'
@@ -35,6 +34,7 @@ const SimpleBarStyle = styled(SimpleBarReact)(({ theme }) => ({
 
 interface ScrollbarProps extends BoxProps {
   children: React.ReactNode
+  sx: Object
 }
 
 export default function Scrollbar({ children, sx, ...other }: ScrollbarProps) {
@@ -57,9 +57,4 @@ export default function Scrollbar({ children, sx, ...other }: ScrollbarProps) {
       </SimpleBarStyle>
     </RootStyle>
   )
-}
-
-Scrollbar.propTypes = {
-  children: PropTypes.node.isRequired,
-  sx: PropTypes.object
 }

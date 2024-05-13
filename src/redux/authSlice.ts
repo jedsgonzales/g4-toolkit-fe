@@ -9,8 +9,8 @@ interface AuthState {
 }
 
 const initialState: AuthState = {
-  //data: null,
-  data: { id: '123-123456-1234', date: '2024-01-01', email: 'john@test.com', username: 'john_doe', firstname: 'John', lastname: 'Doe', roles: ['admin'] },
+  data: null,
+  //data: { id: '123-123456-1234', date: '2024-01-01', email: 'john@test.com', username: 'john_doe', firstname: 'John', lastname: 'Doe', roles: ['admin'] },
   loading: false,
   error: null,
 }
@@ -73,6 +73,7 @@ export const authLogin = createAsyncThunk(
   'auth/login',
   async (payload: object, thunkAPI) => {
     try {
+      /* 
       const response = await fetch(BACKEND_URL + '/auth', {
         method: 'POST',
         headers: {
@@ -88,6 +89,10 @@ export const authLogin = createAsyncThunk(
       } else {
         return thunkAPI.rejectWithValue(json)
       }
+      */
+      return {
+        token: '1234567890',
+      } // for testing
     } catch (e: any) {
       thunkAPI.rejectWithValue(e.response.data)
     }
@@ -148,26 +153,39 @@ export const authUnlink = createAsyncThunk(
 
 export const authValidate = createAsyncThunk(
   'auth/validate',
-  async () => {
-    //console.log(payload)
+  async (payload: Object, thunkAPI) => {
+    console.log(payload)
     try {
       const token = localStorage.getItem('token')
       //if (!token) return thunkAPI.rejectWithValue({ message: 'No token' })
-      const response = await fetch(BACKEND_URL + '/auth', {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      })
-      const json = await response.json()
-      if (response.status === 200) {
-        return json
-      } else {
-        //return thunkAPI.rejectWithValue(json)
-      }
+      /*
+    const response = await fetch(BACKEND_URL + '/auth', {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    })
+    const json = await response.json()
+    if (response.status === 200) {
+      return json
+    } else {
+      return thunkAPI.rejectWithValue(json)
+    }
+    */
+      if (token == '1234567890') console.log('valid token')
+      return {
+        id: '123-123456-1234',
+        date: '2024-01-01',
+        email: 'john@test.com',
+        username: 'john_doe',
+        firstname: 'John',
+        lastname: 'Doe',
+        roles: ['admin']
+      } // for testing
+
     } catch (e: any) {
-      //thunkAPI.rejectWithValue(e.response.data)
+      thunkAPI.rejectWithValue(e.response.data)
     }
   }
 )

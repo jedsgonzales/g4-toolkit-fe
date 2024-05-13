@@ -65,15 +65,15 @@ export default function Layout() {
     useEffect(() => {
         (async () => {
             try {
-                if (!auth.data.roles.includes('admin')) { // refresh
+                if (!auth.data?.roles?.includes('admin')) { // refresh
                     console.log('not an admin')
                     // load user infos
                     //const token = localStorage.getItem('token')
                     // revalidate validate admin
                     //let response
-                    //if (token && token !== '') response = await dispatch(authValidate())
+                    //if (token && token !== '') response = await dispatch(authValidate({}))
                     //if (!response?.payload.roles.includes('admin')) {
-                    //navigate('/login', { replace: true })
+                    navigate('/login', { replace: true })
                     //}
                 }
                 else {
@@ -112,7 +112,7 @@ export default function Layout() {
                 navigate('/maintenance', { replace: true })
             }
         })()
-    }, [dispatch, auth.data.roles])
+    }, [dispatch, auth.data?.roles])
 
     //useEffect(() => {
     //  const token = localStorage.getItem('token')

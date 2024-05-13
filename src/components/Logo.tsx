@@ -1,13 +1,12 @@
-import PropTypes from 'prop-types'
 // material
 import { Box } from '@mui/material'
 
 // ----------------------------------------------------------------------
 
-Logo.propTypes = {
-    sx: PropTypes.object
+interface Props {
+    sx: Object
 }
 
-export default function Logo({ sx }: any) {
+export default function Logo({ sx }: Props) {
     return <Box component="img" src="/static/home/logo.png" sx={{ width: 50, height: 50, ...sx }} />
 }
