@@ -1,4 +1,6 @@
-import { useState } from 'react'
+import { useState, MouseEvent } from 'react'
+import { useNavigate } from 'react-router-dom'
+
 import PropTypes from 'prop-types'
 import { useLocation, matchPath } from 'react-router-dom'
 //import { HashLink as Link } from 'react-router-hash-link'
@@ -82,6 +84,8 @@ NavItem.propTypes = {
 
 function NavItem({ menu, active, disabled }: any) {
   const theme = useTheme()
+  const navigate = useNavigate()
+
   const { title, path, children, badge, info, pathTest } = menu
   const isActiveRoot = active(path)
 
@@ -105,17 +109,27 @@ function NavItem({ menu, active, disabled }: any) {
     window.scrollTo({ top: yCoordinate + yOffset, behavior: 'smooth' })
   }
 
-  const [anchorEl, setAnchorEl] = useState(null)
+  //const [anchorEl, setAnchorEl] = useState(null)
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const open = Boolean(anchorEl)
 
   //let newPath = path
   //if (path.substr(1, 1) !== '#') {
   //  newPath = path + '#'
   //}
-  const handleClick = (event: any) => {
+  const handleClick = (event: MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget)
   }
   const handleClose = () => {
+    setAnchorEl(null)
+  }
+
+  const handleMenuItemClick = (
+    event: MouseEvent<HTMLElement>,
+    path: string,
+  ) => {
+    //setSelectedIndex(index);
+    navigate(path)
     setAnchorEl(null)
   }
 
@@ -158,7 +172,8 @@ function NavItem({ menu, active, disabled }: any) {
                 sx={{
                   ...(isActiveSub && activeSubStyle)
                 }}
-                onClick={handleClose}
+                //onClick={handleClose}
+                onClick={(event) => handleMenuItemClick(event, path)}
                 disableRipple
               >
                 {title}
@@ -180,8 +195,9 @@ function NavItem({ menu, active, disabled }: any) {
           sx={{
             ...(isActiveRoot && activeRootStyle)
           }}
-        //scroll={(el) => el.scrollIntoView({ behavior: 'smooth' })}
-        //scroll={(el: any) => scrollWithOffset(el)}
+          //scroll={(el) => el.scrollIntoView({ behavior: 'smooth' })}
+          //scroll={(el: any) => scrollWithOffset(el)}
+          onClick={(event) => handleMenuItemClick(event, path)}
         >
           <Badge badgeContent={badge} color="secondary">
             {title}
@@ -195,8 +211,9 @@ function NavItem({ menu, active, disabled }: any) {
           sx={{
             ...(isActiveRoot && activeRootStyle)
           }}
-        //scroll={(el) => el.scrollIntoView({ behavior: 'smooth' })}
-        //scroll={(el: any) => scrollWithOffset(el)}
+          //scroll={(el) => el.scrollIntoView({ behavior: 'smooth' })}
+          //scroll={(el: any) => scrollWithOffset(el)}
+          onClick={(event) => handleMenuItemClick(event, path)}
         >
           {title}
         </ButtonStyle >

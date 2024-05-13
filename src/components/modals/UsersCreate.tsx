@@ -234,10 +234,29 @@ export default function UsersCreate({ user, open, handleClose }: any) {
                   <Grid item xs={12} sm={12}>
                     <TextField
                       fullWidth
-                      label="Address"
+                      label="Username"
                       {...getFieldProps('username')}
                       error={Boolean(touched.username && errors.username)}
                       helperText={touched.username && errors.username}
+                    />
+                  </Grid>
+
+                  <Grid item xs={6} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="Firstname"
+                      {...getFieldProps('firstname')}
+                      error={Boolean(touched.firstname && errors.firstname)}
+                      helperText={touched.firstname && errors.firstname}
+                    />
+                  </Grid>
+                  <Grid item xs={6} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="Lastname"
+                      {...getFieldProps('lastname')}
+                      error={Boolean(touched.lastname && errors.lastname)}
+                      helperText={touched.lastname && errors.lastname}
                     />
                   </Grid>
 
@@ -254,12 +273,6 @@ export default function UsersCreate({ user, open, handleClose }: any) {
                         <Checkbox checked={values.roles.includes('user')} onChange={handleChangeRoles} name="user" />
                       }
                       label="User"
-                    />
-                    <FormControlLabel
-                      control={
-                        <Checkbox checked={values.roles.includes('distributor')} onChange={handleChangeRoles} name="distributor" />
-                      }
-                      label="Distributor"
                     />
                   </Grid>
                 </Grid>

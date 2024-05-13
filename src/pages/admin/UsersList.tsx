@@ -40,7 +40,7 @@ import { format } from 'date-fns'
 // ----------------------------------------------------------------------
 const TABLE_HEAD = [
   { id: 'date', label: 'Date', alignRight: false, sort: true },
-  { id: 'username', label: 'Address', alignRight: false, sort: true },
+  { id: 'username', label: 'Username', alignRight: false, sort: true },
   { id: 'email', label: 'Email', alignRight: false, sort: true },
   { id: 'roles', label: 'Roles', alignRight: false },
 ]
