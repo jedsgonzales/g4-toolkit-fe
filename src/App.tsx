@@ -16,6 +16,7 @@ import Page404 from './pages/Page404'
 import UsersList from './pages/admin/UsersList'
 //import RolesList from './pages/admin/RolesList'
 import LocationsList from './pages/admin/LocationsList'
+import DevicesList from './pages/admin/DevicesList'
 
 
 function App() {
@@ -27,6 +28,7 @@ function App() {
             <Route path='' element={<Navigate to='users' />} />
             <Route path='users' element={<UsersList />} />
             <Route path='locations' element={<LocationsList />} />
+            <Route path='devices' element={<DevicesList />} />
             {/*
             <Route path='projects' element={<ProjectsList />} />
             <Route path="products">

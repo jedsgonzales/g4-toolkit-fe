@@ -3,6 +3,7 @@ import authReducer from './authSlice'
 import usersReducer from './usersSlice'
 import rolesReducer from './rolesSlice'
 import locationsReducer from './locationsSlice'
+import devicesReducer from './devicesSlice'
 
 export const store = configureStore({
   reducer: {
@@ -10,5 +11,6 @@ export const store = configureStore({
     users: usersReducer,
     roles: rolesReducer,
     locations: locationsReducer,
+    devices: devicesReducer,
   }
 })

@@ -9,7 +9,17 @@
   },
   {
     "title": "devices",
-    "path": "/admin/devices"
+    "path": "/admin/devices",
+    "children": [
+      {
+        "title": "Relays",
+        "path": "/admin/devices/relays"
+      },
+      {
+        "title": "Sensors",
+        "path": "/admin/devices/sensors"
+      }
+    ]
   },
   {
     "title": "transactions",
