@@ -1,9 +1,9 @@
-import PropTypes from 'prop-types'
-import SearchIcon from '@mui/icons-material/Search'
-import AddIcon from '@mui/icons-material/Add'
 // material
 import { styled } from '@mui/material/styles'
 import { Toolbar, Tooltip, IconButton, OutlinedInput, InputAdornment } from '@mui/material'
+// icons
+import SearchIcon from '@mui/icons-material/Search'
+import AddIcon from '@mui/icons-material/Add'
 
 // ----------------------------------------------------------------------
 
@@ -20,10 +20,10 @@ const SearchStyle = styled(OutlinedInput)(() => ({
   //  easing: theme.transitions.easing.easeInOut,
   //  duration: theme.transitions.duration.shorter
   //}),
-  '&.Mui-focused': { 
-    width: 320, 
+  '&.Mui-focused': {
+    width: 320,
     //boxShadow: theme.customShadows.z8
-},
+  },
   '& fieldset': {
     borderWidth: `1px !important`,
     //borderColor: `${theme.palette.grey[500_32]} !important`
@@ -32,15 +32,15 @@ const SearchStyle = styled(OutlinedInput)(() => ({
 
 // ----------------------------------------------------------------------
 
-ListToolbar.propTypes = {
-  filter: PropTypes.string,
-  onFilter: PropTypes.func,
-  filterBy: PropTypes.string,
-  addText: PropTypes.string,
-  handleAdd: PropTypes.func,
+interface Props {
+  filter: String
+  onFilter: React.ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement>
+  filterBy: String
+  addText?: String
+  handleAdd?: Function
 }
 
-export default function ListToolbar({ filter, onFilter, filterBy, addText, handleAdd }: any) {
+export default function ListToolbar({ filter, onFilter, filterBy, addText, handleAdd }: Props) {
   return (
     <RootStyle>
 

@@ -32,12 +32,12 @@ const SimpleBarStyle = styled(SimpleBarReact)(({ theme }) => ({
   }
 }))
 
-interface ScrollbarProps extends BoxProps {
+interface Props extends BoxProps {
   children: React.ReactNode
-  sx: Object
+  sx?: Object
 }
 
-export default function Scrollbar({ children, sx, ...other }: ScrollbarProps) {
+export default function Scrollbar({ children, sx, ...other }: Props) {
   const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
     navigator.userAgent
   )

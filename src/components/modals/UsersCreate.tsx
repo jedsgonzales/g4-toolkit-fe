@@ -79,10 +79,9 @@ interface Values {
 }
 
 interface Props {
-  user: Values
+  user: any
   open?: any
   handleClose?: any
-  others: Object
 }
 
 const validationSchema = Yup.object({

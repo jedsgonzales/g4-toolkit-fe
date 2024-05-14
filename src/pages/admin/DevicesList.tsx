@@ -44,11 +44,8 @@ const TABLE_HEAD = [
 ]
 // ----------------------------------------------------------------------
 const TablePaginationStyle = styled(TablePagination)({
-  color: '#B19E77',
   textTransform: 'uppercase',
-  fontFamily: 'Tourney',
-  fontSize: '12px',
-  fontWeight: 900,
+  fontSize: '10px',
 }) as typeof TablePagination
 // ----------------------------------------------------------------------
 
@@ -236,7 +233,7 @@ export default function DevicesList() {
                             <Stack direction='row' alignItems='center' spacing={1}>
                               <CopyToClipboard data={name} />
                               <Typography variant="body2" noWrap >
-                                ...{name.slice(-16)}
+                                {name}
                               </Typography>
                             </Stack>
                           </TableCell>

@@ -2,21 +2,38 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 
 const BACKEND_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000/api/v1'
 
+type UserType = {
+  id?: String
+  date?: String
+  email?: String
+  username?: String
+  firstname?: String
+  lastname?: String
+}
+
 interface UsersState {
   //items: Array<Object>,
   //totalItems: number;
-  data: any;
+  data: {
+    items: Array<UserType>
+    totalItems: Number
+  };
   loading: boolean;
   error: string | null;
 }
+
+const TestData = [
+  { id: '123-123456-1234', date: '2024-01-01', email: 'admin@g4.com', username: 'admin_g4', firstname: 'Admin', lastname: 'Account', roles: ['admin'] },
+  { id: '123-123456-1235', date: '2024-01-02', email: 'user@g4.com', username: 'user_g4', firstname: 'User', lastname: 'Account', roles: ['user'] },
+]
 
 const initialState: UsersState = {
   //items: [],
   //totalItems: 0,
   //data: null,
   data: {
-    items: [{ id: '123-123456-1234', date: '2024-01-01', email: 'john@test.com', username: 'john_doe', firstname: 'John', lastname: 'Doe', roles: ['admin'] }],
-    totalItems: 1
+    items: TestData,
+    totalItems: TestData.length
   },
   loading: false,
   error: null,

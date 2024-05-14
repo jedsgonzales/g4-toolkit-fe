@@ -1,11 +1,11 @@
 // material
-import { Paper, Typography } from '@mui/material'
+import { Paper, Typography, PaperProps } from '@mui/material'
 
 // ----------------------------------------------------------------------
 
-interface Props {
+interface Props extends PaperProps {
   searchQuery: string
-  other: Object
+  other?: Object
 }
 
 export default function SearchNotFound({ searchQuery = '', ...other }: Props) {

@@ -131,13 +131,13 @@ export default function Login() {
 
   useEffect(() => {
     if (auth.data?.roles?.includes('admin') && !pathname.includes('/admin/')) {
-      console.log('move to admin')
+      console.log('move to admin dashboard')
       navigate('/admin', { replace: true })
     }
-    //else if (auth.role === 'user' && !pathname.includes('/dashboard/')) {
-    //  console.log('move to dashboard')
-    //  navigate('/dashboard', { replace: true })
-    //}
+    else if (auth.data?.roles?.includes('user') && !pathname.includes('/user/')) {
+      console.log('move to user dashboard')
+      navigate('/user', { replace: true })
+    }
     //else {
     //  googleLogout()
     //}

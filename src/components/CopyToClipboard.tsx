@@ -10,7 +10,7 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 
 interface Props {
   data: string
-  sx: any
+  sx?: Object
 }
 
 export default function CopyToClipboard({ data, sx }: Props) {

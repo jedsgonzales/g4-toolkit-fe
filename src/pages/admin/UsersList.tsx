@@ -40,7 +40,7 @@ import { format } from 'date-fns'
 // ----------------------------------------------------------------------
 const TABLE_HEAD = [
   { id: 'date', label: 'Date', alignRight: false, sort: true },
-  { id: 'username', label: 'Username', alignRight: false, sort: true },
+  { id: 'name', label: 'Fullname', alignRight: false, sort: false },
   { id: 'email', label: 'Email', alignRight: false, sort: true },
   { id: 'roles', label: 'Roles', alignRight: false },
 ]
@@ -216,7 +216,7 @@ export default function UsersList() {
                       </TableRow>
                     )}
                     {users.data.items.map((obj: any, idx: number) => {
-                      const { id, date, username, email, roles } = obj
+                      const { id, date, firstname, lastname, email, roles } = obj
 
                       return (
                         <TableRow
@@ -236,16 +236,18 @@ export default function UsersList() {
                           </TableCell>
                           <TableCell align="left">
                             <Stack direction='row' alignItems='center' spacing={1}>
-                              <CopyToClipboard data={username} />
                               <Typography variant="body2" noWrap >
-                                ...{username.slice(-16)}
+                                {firstname} {lastname}
                               </Typography>
                             </Stack>
                           </TableCell>
                           <TableCell align="left">
-                            <Typography variant="body2" noWrap >
-                              {email}
-                            </Typography>
+                            <Stack direction='row' alignItems='center' spacing={1}>
+                              <CopyToClipboard data={email} />
+                              <Typography variant="body2" noWrap >
+                                {email}
+                              </Typography>
+                            </Stack>
                           </TableCell>
                           <TableCell align="left">
                             <Typography variant="body2" noWrap >

@@ -1,11 +1,11 @@
 import { Helmet } from 'react-helmet-async'
 import { forwardRef, ReactNode } from 'react'
 // material
-import { Box } from '@mui/material'
+import { Box, BoxProps } from '@mui/material'
 
 // ----------------------------------------------------------------------
 
-interface Props {
+interface Props extends BoxProps {
   children?: ReactNode
   title?: string
 }

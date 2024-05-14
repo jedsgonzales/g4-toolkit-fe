@@ -7,6 +7,7 @@ import ThemeConfig from './theme'
 // layouts
 import PlainLayout from './layouts/PlainLayout'
 import AdminLayout from './layouts/admin'
+import UserLayout from './layouts/user'
 
 // pages
 import Login from './pages/auth/Login'
@@ -38,6 +39,8 @@ function App() {
               <Route path="batteries" element={<BatteriesList />} />
             </Route>
   */}
+          </Route>
+          <Route path='/user' element={<UserLayout />}>
           </Route>
           <Route path="/" element={<PlainLayout />}>
             <Route path='' element={<Navigate to='admin' />} />

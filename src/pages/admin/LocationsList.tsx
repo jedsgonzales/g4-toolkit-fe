@@ -236,7 +236,7 @@ export default function LocationsList() {
                             <Stack direction='row' alignItems='center' spacing={1}>
                               <CopyToClipboard data={name} />
                               <Typography variant="body2" noWrap >
-                                ...{name.slice(-16)}
+                                {name}
                               </Typography>
                             </Stack>
                           </TableCell>

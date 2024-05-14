@@ -1,9 +1,5 @@
 [
   {
-    "title": "users",
-    "path": "/admin/users"
-  },
-  {
     "title": "devices",
     "path": "/admin/devices"
   },

@@ -1,9 +1,9 @@
 // material
-import { Box } from '@mui/material'
+import { Box, BoxProps } from '@mui/material'
 
 // ----------------------------------------------------------------------
 
-interface Props {
+interface Props extends BoxProps {
     sx: Object
 }
 

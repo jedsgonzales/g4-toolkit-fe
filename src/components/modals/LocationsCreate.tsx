@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import PropTypes from 'prop-types'
 import { useSnackbar } from 'notistack'
 // materials
 import { styled } from '@mui/material/styles'
@@ -38,7 +37,12 @@ const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   }
 }))
 
-const BootstrapDialogTitle = (props: any) => {
+interface DialogProps {
+  children: React.ReactNode
+  onClose?: React.MouseEventHandler<HTMLButtonElement>
+}
+
+const BootstrapDialogTitle = (props: DialogProps) => {
   const { children, onClose, ...other } = props
 
   return (
@@ -62,34 +66,23 @@ const BootstrapDialogTitle = (props: any) => {
   )
 }
 
-BootstrapDialogTitle.propTypes = {
-  children: PropTypes.node,
-  onClose: PropTypes.func.isRequired,
-}
-
-LocationsCreate.propTypes = {
-  location: PropTypes.object,
-  open: PropTypes.bool.isRequired,
-  handleClose: PropTypes.func.isRequired,
-}
-
 interface Values {
   id: string
   date: string
   name: string
 }
 
-const initialValues: Values = {
-  id: '',
-  date: '',
-  name: ''
+interface Props {
+  location: any
+  open?: any
+  handleClose?: any
 }
 
 const validationSchema = Yup.object({
   name: Yup.string().required('Name is required'),
 })
 
-export default function LocationsCreate({ location, open, handleClose }: any) {
+export default function LocationsCreate({ location, open, handleClose }: Props) {
   const isUpdate = location ? true : false
 
   //const dispatch = useDispatch()
@@ -99,6 +92,11 @@ export default function LocationsCreate({ location, open, handleClose }: any) {
 
   const [openConfirm, setOpenConfirm] = useState(false)
 
+  const initialValues: Values = {
+    id: location.id || '',
+    date: location.date || '',
+    name: location.name || '',
+  }
 
   const formik = useFormik({
     enableReinitialize: true,
