@@ -18,6 +18,9 @@ import UsersList from './pages/admin/UsersList'
 //import RolesList from './pages/admin/RolesList'
 import LocationsList from './pages/admin/LocationsList'
 import DevicesList from './pages/admin/DevicesList'
+// user pages
+import LocationsListU from './pages/user/LocationsList'
+import DevicesListU from './pages/user/DevicesList'
 
 
 function App() {
@@ -28,8 +31,8 @@ function App() {
           <Route path='/admin' element={<AdminLayout />}>
             <Route path='' element={<Navigate to='users' />} />
             <Route path='users' element={<UsersList />} />
-            <Route path='locations' element={<LocationsList />} />
             <Route path='devices' element={<DevicesList />} />
+            <Route path='locations' element={<LocationsList />} />
             {/*
             <Route path='projects' element={<ProjectsList />} />
             <Route path="products">
@@ -41,6 +44,9 @@ function App() {
   */}
           </Route>
           <Route path='/user' element={<UserLayout />}>
+            <Route path='' element={<Navigate to='devices' />} />
+            <Route path='devices' element={<DevicesListU />} />
+            <Route path='locations' element={<LocationsListU />} />
           </Route>
           <Route path="/" element={<PlainLayout />}>
             <Route path='' element={<Navigate to='admin' />} />

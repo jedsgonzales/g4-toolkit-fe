@@ -17,9 +17,9 @@ interface UsersState {
   data: {
     items: Array<UserType>
     totalItems: Number
-  };
-  loading: boolean;
-  error: string | null;
+  }
+  loading: boolean
+  error: string | null
 }
 
 const TestData = [

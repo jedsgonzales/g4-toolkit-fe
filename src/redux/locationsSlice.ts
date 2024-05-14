@@ -2,27 +2,38 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 
 const BACKEND_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000/api/v1'
 
-interface LocationsState {
-  //items: Array<Object>,
-  //totalItems: number;
-  data: any;
-  loading: boolean;
-  error: string | null;
+type LocationType = {
+  id?: String
+  date?: String
+  name?: String
+  details?: String
+  isOccupied?: Boolean
+  //devices?: Array<DeviceType>
 }
 
-const initialState: LocationsState = {
-  //items: [],
-  //totalItems: 0,
-  //data: null,
+interface LocationsState {
+  //items: Array<Object>,
+  //totalItems: number
   data: {
-    items: [
-      { id: '1', date: '2024-01-01', name: 'room 1' },
-      { id: '2', date: '2024-01-01', name: 'room 2' },
-      { id: '3', date: '2024-01-01', name: 'room 3' },
-      { id: '4', date: '2024-01-01', name: 'kitchen 1' },
-      { id: '5', date: '2024-01-01', name: 'kitchen 2' },
-    ],
-    totalItems: 5
+    items: Array<LocationType>
+    totalItems: Number
+  }
+  loading: boolean
+  error: string | null
+}
+
+const TestData = [
+  { id: '1', date: '2024-01-01', name: 'room 1', details: 'this is room 1', isOccupied: false, devices: [] },
+  { id: '2', date: '2024-01-01', name: 'room 2', details: 'this is room 2', isOccupied: true, devices: [] },
+  { id: '3', date: '2024-01-01', name: 'room 3', details: 'this is room 3', isOccupied: false, devices: [] },
+  { id: '4', date: '2024-01-01', name: 'kitchen 1', details: 'this is kitchen 1', isOccupied: false, devices: [] },
+  { id: '5', date: '2024-01-01', name: 'kitchen 2', details: 'this is kitchen 2', isOccupied: false, devices: [] },
+]
+
+const initialState: LocationsState = {
+  data: {
+    items: TestData,
+    totalItems: TestData.length
   },
   loading: false,
   error: null,
@@ -171,7 +182,7 @@ export const locationsDownload = createAsyncThunk(
         const file = window.URL.createObjectURL(blob)
         //window.location.assign(file)
         var a = document.createElement('a')
-        a.href = file;
+        a.href = file
         a.download = "locations.xlsx"
         document.body.appendChild(a)
         a.click()

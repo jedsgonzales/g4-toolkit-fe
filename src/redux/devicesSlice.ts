@@ -2,27 +2,38 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 
 const BACKEND_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000/api/v1'
 
-interface DevicesState {
-  //items: Array<Object>,
-  //totalItems: number;
-  data: any;
-  loading: boolean;
-  error: string | null;
+type DeviceType = {
+  id?: String
+  date?: String
+  name?: String
+  details?: String
+  isOccupied?: Boolean
+  //devices?: Array<DeviceType>
 }
 
-const initialState: DevicesState = {
-  //items: [],
-  //totalItems: 0,
-  //data: null,
+interface DevicesState {
+  //items: Array<Object>,
+  //totalItems: number
   data: {
-    items: [
-      { id: '1', date: '2024-01-01', name: 'room 1' },
-      { id: '2', date: '2024-01-01', name: 'room 2' },
-      { id: '3', date: '2024-01-01', name: 'room 3' },
-      { id: '4', date: '2024-01-01', name: 'kitchen 1' },
-      { id: '5', date: '2024-01-01', name: 'kitchen 2' },
-    ],
-    totalItems: 5
+    items: Array<DeviceType>
+    totalItems: Number
+  }
+  loading: boolean
+  error: string | null
+}
+
+const TestData = [
+  { id: '1', date: '2024-01-01', name: 'Relay', deviceId: '0001', deviceType: 'relay', description: 'This is a relay', value: 0, min: 0, max: 1, unit: '' },
+  { id: '2', date: '2024-01-01', name: 'Switch', deviceId: '0002', deviceType: 'switch', description: 'This is a switch', value: 1, min: 0, max: 1, unit: '' },
+  { id: '3', date: '2024-01-01', name: 'Dimmer', deviceId: '0003', deviceType: 'dimmer', description: 'This is a dimmer', value: 73, min: 0, max: 100, unit: '%' },
+  { id: '4', date: '2024-01-01', name: 'Motion', deviceId: '0004', deviceType: 'motion', description: 'This is a motion sensor', value: 0, min: 0, max: 1, unit: '' },
+  { id: '5', date: '2024-01-01', name: 'Energy', deviceId: '0005', deviceType: 'energy', description: 'This is an energy sensor', value: 0.5, min: 0, max: 100, unit: 'kw' },
+]
+
+const initialState: DevicesState = {
+  data: {
+    items: TestData,
+    totalItems: TestData.length
   },
   loading: false,
   error: null,
@@ -171,7 +182,7 @@ export const devicesDownload = createAsyncThunk(
         const file = window.URL.createObjectURL(blob)
         //window.device.assign(file)
         var a = document.createElement('a')
-        a.href = file;
+        a.href = file
         a.download = "devices.xlsx"
         document.body.appendChild(a)
         a.click()

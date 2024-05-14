@@ -1,14 +1,14 @@
 [
   {
     "title": "devices",
-    "path": "/admin/devices"
+    "path": "/user/devices"
   },
   {
     "title": "locations",
-    "path": "/admin/locations"
+    "path": "/user/locations"
   },
   {
     "title": "transactions",
-    "path": "/admin/transactions"
+    "path": "/user/transactions"
   }
 ]
