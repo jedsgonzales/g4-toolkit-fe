@@ -44,22 +44,21 @@ const ContentStyle = styled('div')(() => ({
 // ----------------------------------------------------------------------
 
 interface Values {
-  email: string;
+  username: string;
   password: string;
   remember: boolean;
 }
 
 const initialValues: Values = {
-  email: localStorage.remember === 'true' ? localStorage.email : '',
+  username: localStorage.remember === 'true' ? localStorage.username : '',
   password: localStorage.remember === 'true' ? localStorage.password : '',
   remember: localStorage.remember === 'true' ? true : false,
   //recaptcha: '',
 }
 
 const validationSchema = Yup.object({
-  email: Yup.string().email('Email must be a valid email address').required('Email is required'),
+  username: Yup.string().required('Username is required').min(3, 'Username must be at least 3 characters'),
   password: Yup.string().required('Password is required'),
-  //recaptcha: Yup.string().required('Recaptcha is required')
 })
 
 export default function Login() {
@@ -83,13 +82,13 @@ export default function Login() {
     validationSchema: validationSchema,
     onSubmit: async (values: Values, { setSubmitting }) => {
 
-      if (values.remember === true && values.email !== '' && values.password !== '') {
-        localStorage.email = values.email
+      if (values.remember === true && values.username !== '' && values.password !== '') {
+        localStorage.username = values.username
         localStorage.password = values.password
         localStorage.remember = values.remember
       }
       else {
-        localStorage.email = ''
+        localStorage.username = ''
         localStorage.password = ''
         localStorage.remember = false
       }
@@ -127,6 +126,7 @@ export default function Login() {
       }
     }
   })
+  
   const { values, errors, touched, isSubmitting, handleSubmit, getFieldProps } = formik
 
   useEffect(() => {
@@ -164,12 +164,11 @@ export default function Login() {
             <Stack spacing={3}>
               <TextField
                 fullWidth
-                autoComplete="email"
-                type="email"
-                label="Email address"
-                {...getFieldProps('email')}
-                error={Boolean(touched.email && errors.email)}
-                helperText={touched.email && errors.email}
+                autoComplete="username"
+                label="Username"
+                {...getFieldProps('username')}
+                error={Boolean(touched.username && errors.username)}
+                helperText={touched.username && errors.username}
                 disabled={isSubmitting}
               />
               <TextField

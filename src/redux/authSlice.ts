@@ -85,7 +85,7 @@ export const authForgot = createAsyncThunk(
 
 export const authLogin = createAsyncThunk(
   'auth/login',
-  async (payload: { email: String, password: String }, thunkAPI) => {
+  async (payload: { username: String, password: String }, thunkAPI) => {
     console.log('login: ' + payload)
     //try {
     /* 
@@ -106,7 +106,7 @@ export const authLogin = createAsyncThunk(
     }
     */
     // for testing
-    const user = TestData.find(obj => obj.email == payload.email)
+    const user = TestData.find(obj => obj.email == payload.username)
     if (user)
       return {
         token: user.token,
