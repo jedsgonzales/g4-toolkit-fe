@@ -29,8 +29,9 @@ import {
 import { LoadingButton } from '@mui/lab'
 // redux
 import { useDispatch, useSelector } from 'react-redux'
-import { authLogin, authValidate } from 'src/redux/authSlice'
+import { authKey, authLogin, authValidate } from 'src/redux/authSlice'
 import { SmartG4RootState } from 'src/redux/store'
+import * as crypto from 'crypto';
 
 // ----------------------------------------------------------------------
 const ContentStyle = styled('div')(() => ({
@@ -82,11 +83,19 @@ export default function Login() {
     initialValues: initialValues,
     validationSchema: validationSchema,
     onSubmit: async (values: Values, { setSubmitting }) => {
+      let maskedPass: string = values.password;
 
-      if (values.remember === true && values.username !== '' && values.password !== '') {
-        localStorage.username = values.username
-        localStorage.password = values.password
-        localStorage.remember = values.remember
+      if (!!auth.data?.key && !!values.username && !!values.password) {
+        // perform password obfuscation routine
+        const hasher = crypto.createHash('md5');
+        hasher.update(`${values.password}${auth.data?.key}`);
+        maskedPass = hasher.digest('hex');
+
+        if(values.remember) {
+          localStorage.username = values.username
+          localStorage.password = values.password
+          localStorage.remember = values.remember
+        }
       }
       else {
         localStorage.username = ''
@@ -94,9 +103,12 @@ export default function Login() {
         localStorage.remember = false
       }
 
+      
+
+
       try {
-        await dispatch(authLogin(values))
-        await dispatch(authValidate({}))
+        await dispatch(authLogin({ ...values, password: maskedPass}));
+        //await dispatch(authValidate({}))
         //await dispatch(userRead({ id: user.id }))
 
         enqueueSnackbar('Login success', {
@@ -131,11 +143,11 @@ export default function Login() {
   const { values, errors, touched, isSubmitting, handleSubmit, getFieldProps } = formik
 
   useEffect(() => {
-    if (auth.data?.roles?.includes('admin') && !pathname.includes('/admin/')) {
+    if (auth.data?.roles?.find((r) => r.RoleName === "Admin") && !pathname.includes('/admin/')) {
       console.log('move to admin dashboard')
       navigate('/admin', { replace: true })
     }
-    else if (auth.data?.roles?.includes('user') && !pathname.includes('/user/')) {
+    else if (auth.data?.roles?.find((r) => r.RoleName === "Staff") && !pathname.includes('/user/')) {
       console.log('move to user dashboard')
       navigate('/user', { replace: true })
     }
@@ -149,6 +161,10 @@ export default function Login() {
     }
     */
   }, [navigate, auth.data?.roles, pathname])
+
+  const getLoginKey = async () => {
+    await dispatch(authKey(values.username));
+  };
 
   return (
     <Container maxWidth="sm">
@@ -171,6 +187,7 @@ export default function Login() {
                 error={Boolean(touched.username && errors.username)}
                 helperText={touched.username && errors.username}
                 disabled={isSubmitting}
+                onBlur={getLoginKey}
               />
               <TextField
                 fullWidth
@@ -189,7 +206,7 @@ export default function Login() {
                 }}
                 error={Boolean(touched.password && errors.password)}
                 helperText={touched.password && errors.password}
-                disabled={isSubmitting}
+                disabled={isSubmitting || auth.loading || !auth.data?.key}
               />
               <FormControl
                 required
