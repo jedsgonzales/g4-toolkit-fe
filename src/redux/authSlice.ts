@@ -1,8 +1,14 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
+import { apolloClient } from 'src/client/apollo'
+import { AUTHENTICATE, GET_AUTH_KEY, VALIDATE_TOKEN } from 'src/client/models/auth'
+import { GetLoginKeyMutation, GetLoginKeyMutationVariables, SignInMutation, SignInMutationVariables, ValidateAuthQuery, ValidateAuthQueryVariables } from 'src/client/types/graphql'
+import { delStorageObject, getSessionId, saveStorageObject } from 'src/utils/storage'
+import { roles } from './rolesSlice'
 
 const BACKEND_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000/api/v1'
 
 type AuthType = {
+  key?: String
   token?: String
   id?: String
   date?: String
@@ -10,6 +16,7 @@ type AuthType = {
   username?: String
   firstname?: String
   lastname?: String
+  roles?: { Id: string, RoleName: string }[]
 }
 
 interface AuthState extends Object {
@@ -83,38 +90,73 @@ export const authForgot = createAsyncThunk(
   }
 )
 
+
+export const authKey = createAsyncThunk(
+  'auth/key',
+  async (username: string, thunkAPI) => {
+    try {
+      return await apolloClient.query<GetLoginKeyMutation, GetLoginKeyMutationVariables>({
+        query: GET_AUTH_KEY,
+        fetchPolicy: 'network-only',
+        variables: {
+          username,
+        }
+      })
+      .then((resp) => {
+        if(resp.error) {
+          return thunkAPI.rejectWithValue(resp.error)
+        } else if(resp.errors) {
+          return thunkAPI.rejectWithValue(resp.errors)
+        } else {
+          return thunkAPI.fulfillWithValue({
+            key: resp.data.GetLoginKey
+          })
+        }
+      })
+      .catch((err) => {
+        return thunkAPI.rejectWithValue(err.message)
+      });
+    } catch (e: any) {
+      return thunkAPI.rejectWithValue(e.response.data)
+    }
+  }
+)
+
 export const authLogin = createAsyncThunk(
   'auth/login',
-  async (payload: { username: String, password: String }, thunkAPI) => {
-    console.log('login: ' + payload)
-    //try {
-    /* 
-    const response = await fetch(BACKEND_URL + '/auth', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        ...payload
-      })
-    })
-    const json = await response.json()
-    if (response.status === 200) {
-      return json
-    } else {
-      return thunkAPI.rejectWithValue(json)
-    }
-    */
-    // for testing
-    const user = TestData.find(obj => obj.email == payload.username)
-    if (user)
-      return {
-        token: user.token,
+  async (payload: { username: string, password: string }, thunkAPI) => {
+    return await apolloClient.query<SignInMutation, SignInMutationVariables>({
+      query: AUTHENTICATE,
+      fetchPolicy: 'network-only',
+      variables: {
+        username: payload.username,
+        key: payload.password,
       }
-    return thunkAPI.rejectWithValue({ message: 'login failed' })
-    //} catch (e: any) {
-    //  ZthunkAPI.rejectWithValue(e.response.data)
-    //}
+    })
+    .then((resp) => {
+      if(resp.error) {
+        return thunkAPI.rejectWithValue(resp.error)
+      } else if(resp.errors) {
+        return thunkAPI.rejectWithValue(resp.errors)
+      } else {
+        return thunkAPI.fulfillWithValue({
+          token: resp.data.SignIn.AccessToken,
+          id: resp.data.SignIn.User.Id,
+          date: resp.data.SignIn.User.CreatedOn,
+          email: resp.data.SignIn.User.Email,
+          username: resp.data.SignIn.User.Username,
+          firstname: resp.data.SignIn.User.FirstName || '',
+          lastname: resp.data.SignIn.User.LastName || '',
+          roles: resp.data.SignIn.User.Roles?.map(role => ({
+            Id: role.Id,
+            RoleName: role.RoleName
+          })) || []
+        })
+      }
+    })
+    .catch((err) => {
+      return thunkAPI.rejectWithValue(err.message)
+    });
   }
 )
 export const authLink = createAsyncThunk(
@@ -173,41 +215,35 @@ export const authUnlink = createAsyncThunk(
 export const authValidate = createAsyncThunk(
   'auth/validate',
   async (payload: { token?: String }, thunkAPI) => {
-    console.log(payload)
-    //try {
-    const token = localStorage.getItem('token')
-    //if (!token) return thunkAPI.rejectWithValue({ message: 'No token' })
-    /*
-  const response = await fetch(BACKEND_URL + '/auth', {
-    method: 'GET',
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
-  })
-  const json = await response.json()
-  if (response.status === 200) {
-    return json
-  } else {
-    return thunkAPI.rejectWithValue(json)
-  }
-  */
-    // for testing
-    const user = TestData.find(obj => obj.token == token)
-    if (user)
-      return {
-        id: user?.id,
-        date: user?.date,
-        email: user?.email,
-        username: user?.username,
-        firstname: user?.firstname,
-        lastname: user?.lastname,
-        roles: user?.roles,
+    return await apolloClient.query<ValidateAuthQuery, ValidateAuthQueryVariables>({
+      query: VALIDATE_TOKEN,
+      fetchPolicy: 'network-only',
+    })
+    .then((resp) => {
+      if(resp.error) {
+        return thunkAPI.rejectWithValue(resp.error)
+      } else if(resp.errors) {
+        return thunkAPI.rejectWithValue(resp.errors)
+      } else {
+        const token = getSessionId();
+        return thunkAPI.fulfillWithValue({
+          token: token || '',
+          id: resp.data.ValidateAuth.Id,
+          date: resp.data.ValidateAuth.CreatedOn,
+          email: resp.data.ValidateAuth.Email,
+          username: resp.data.ValidateAuth.Username,
+          firstname: resp.data.ValidateAuth.FirstName || '',
+          lastname: resp.data.ValidateAuth.LastName || '',
+          roles: resp.data.ValidateAuth.Roles?.map(role => ({
+            Id: role.Id,
+            RoleName: role.RoleName
+          })) || []
+        })
       }
-    return thunkAPI.rejectWithValue({ message: 'login failed' })
-    //} catch (e: any) {
-    //  thunkAPI.rejectWithValue(e.response.data)
-    //}
+    })
+    .catch((err) => {
+      return thunkAPI.rejectWithValue(err.message)
+    });
   }
 )
 // --- end auths endpoints ---
@@ -221,7 +257,7 @@ export const authSlice = createSlice({
   // The `reducers` field lets us define reducers and generate associated actions
   reducers: {
     authReset: (state) => {
-      localStorage.removeItem('token')
+      delStorageObject('auth')
       state = initialState
       return state
     },
@@ -253,10 +289,23 @@ export const authSlice = createSlice({
         state.loading = false
         state.error = error.message || 'An error occurred'
       })
+      .addCase(authKey.fulfilled, (state, { payload }) => {
+        state.loading = false
+        state.data = payload
+      })
+      .addCase(authKey.rejected, (state, { payload }) => {
+        state.loading = false
+        state.data = undefined
+        state.error = (payload as any).toString()
+      })
+      .addCase(authKey.pending, (state) => {
+        state.loading = true
+        state.error = undefined
+      })
       .addCase(authLogin.fulfilled, (state, { payload }) => {
         state.loading = false
         if (payload) {
-          localStorage.setItem('token', payload.token)
+          saveStorageObject('auth', payload);
           state.data = payload
           console.log(payload)
         }

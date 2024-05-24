@@ -30,6 +30,7 @@ import { LoadingButton } from '@mui/lab'
 // redux
 import { useDispatch, useSelector } from 'react-redux'
 import { authLogin, authValidate } from 'src/redux/authSlice'
+import { SmartG4RootState } from 'src/redux/store'
 
 // ----------------------------------------------------------------------
 const ContentStyle = styled('div')(() => ({
@@ -72,7 +73,7 @@ export default function Login() {
   //const isMountedRef = useIsMountedRef()
   const { enqueueSnackbar, closeSnackbar } = useSnackbar()
 
-  const auth = useSelector((state: any) => state.auth)
+  const auth = useSelector((state: SmartG4RootState) => state.auth)
 
   //console.log(auth)
 
@@ -126,7 +127,7 @@ export default function Login() {
       }
     }
   })
-  
+
   const { values, errors, touched, isSubmitting, handleSubmit, getFieldProps } = formik
 
   useEffect(() => {
