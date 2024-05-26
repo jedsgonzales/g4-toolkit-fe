@@ -4,7 +4,7 @@ import { onError } from '@apollo/client/link/error'
 import { getSessionId } from 'src/utils/storage'
 
 const httpLink = createHttpLink({
-    uri: `${process.env.GRAPH_API}`,
+    uri: `${import.meta.env.VITE_API_BASE_URL}`,
     // credentials: 'same-origin', // for same server API
     credentials: 'omit',
 })
@@ -32,18 +32,18 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
             )
         )
 
-        const isUnathorized: boolean = graphQLErrors?.reduce<boolean>((p, c) => {
-            return c.extensions?.code === "UNAUTHORIZED" || p;
-        }, false) || false;
+    const isUnathorized: boolean = graphQLErrors?.reduce<boolean>((p, c) => {
+        return c.extensions?.code === "UNAUTHORIZED" || p;
+    }, false) || false;
 
-        if(isUnathorized){
-            window.location.href = "/login";
-        }
+    if (isUnathorized) {
+        window.location.href = "/login";
+    }
 
     if (networkError) {
         console.log(`[Network error]: ${networkError}`);
 
-        if(networkError.message === "Unauthorized"){
+        if (networkError.message === "Unauthorized") {
             window.location.href = "/login";
         }
     }
@@ -52,5 +52,5 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
 export const apolloClient = new ApolloClient({
     /* uri: `${process.env.APOLLO_API_SERVER}`, */
     cache: new InMemoryCache(),
-    link: from([ errorLink, authLink, httpLink ]),
+    link: from([errorLink, authLink, httpLink]),
 })

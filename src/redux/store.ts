@@ -5,7 +5,7 @@ import rolesReducer from './rolesSlice'
 import locationsReducer from './locationsSlice'
 import devicesReducer from './devicesSlice'
 
-const store = configureStore({
+export const store = configureStore({
   reducer: {
     auth: authReducer,
     users: usersReducer,
@@ -15,6 +15,7 @@ const store = configureStore({
   }
 })
 
-export type SmartG4RootState = ReturnType<typeof store.getState>
-export type SmartG4Dispatch = typeof store.dispatch
-export default store
+export type AppStore = typeof store
+
+export type SmartG4RootState = ReturnType<AppStore['getState']>
+export type SmartG4Dispatch = AppStore['dispatch']
