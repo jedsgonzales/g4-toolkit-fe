@@ -4,7 +4,7 @@ import { onError } from '@apollo/client/link/error'
 import { getSessionId } from 'src/utils/storage'
 
 const httpLink = createHttpLink({
-    uri: `${import.meta.env.VITE_API_BASE_URL}`,
+    uri: `${import.meta.env.VITE_GRAPH_API}`,
     // credentials: 'same-origin', // for same server API
     credentials: 'omit',
 })
@@ -53,4 +53,14 @@ export const apolloClient = new ApolloClient({
     /* uri: `${process.env.APOLLO_API_SERVER}`, */
     cache: new InMemoryCache(),
     link: from([errorLink, authLink, httpLink]),
+    defaultOptions: {
+        watchQuery: {
+          fetchPolicy: 'no-cache',
+          errorPolicy: 'ignore',
+        },
+        query: {
+          fetchPolicy: 'no-cache',
+          errorPolicy: 'all',
+        },
+      }
 })

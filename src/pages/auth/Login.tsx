@@ -31,7 +31,7 @@ import { LoadingButton } from '@mui/lab'
 import { useDispatch, useSelector } from 'react-redux'
 import { authKey, authLogin, authValidate } from 'src/redux/authSlice'
 import { SmartG4RootState } from 'src/redux/store'
-import * as crypto from 'crypto';
+import crypto from 'crypto';
 
 // ----------------------------------------------------------------------
 const ContentStyle = styled('div')(() => ({
@@ -87,9 +87,13 @@ export default function Login() {
 
       if (!!auth.data?.key && !!values.username && !!values.password) {
         // perform password obfuscation routine
-        const hasher = crypto.createHash('md5');
-        hasher.update(`${values.password}${auth.data?.key}`);
-        maskedPass = hasher.digest('hex');
+        const sha256 = crypto.createHash('sha256');
+        sha256.update(values.password);
+        maskedPass = sha256.digest('hex');
+
+        const md5 = crypto.createHash('md5');
+        md5.update(`${maskedPass}${auth.data?.key}`);
+        maskedPass = md5.digest('hex');
 
         if(values.remember) {
           localStorage.username = values.username
@@ -186,7 +190,7 @@ export default function Login() {
                 disabled={isSubmitting}
                 onBlur={getLoginKey}
               />
-              <TextField
+              { !!auth.data?.key && <TextField
                 fullWidth
                 autoComplete="password"
                 type={showPassword ? 'text' : 'password'}
@@ -204,7 +208,8 @@ export default function Login() {
                 error={Boolean(touched.password && errors.password)}
                 helperText={touched.password && errors.password}
                 disabled={isSubmitting || auth.loading || !auth.data?.key}
-              />
+              /> }
+              
               <FormControl
                 required
                 error={Boolean(touched.remember && errors.remember)}
@@ -224,7 +229,8 @@ export default function Login() {
                 <FormHelperText>{touched.remember && errors.remember}</FormHelperText>
               </FormControl>
               {auth.error && <Alert severity='error'>{auth.error}</Alert>}
-              <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
+
+              { !!auth.data?.key ? <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
                 <LoadingButton
                   color="primary"
                   fullWidth
@@ -235,7 +241,19 @@ export default function Login() {
                 >
                   Login
                 </LoadingButton>
-              </Box>
+              </Box> : <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
+                <LoadingButton
+                  color="primary"
+                  fullWidth
+                  size="large"
+                  type="submit"
+                  variant="contained"
+                  loading={auth.loading}
+                >
+                  Next
+                </LoadingButton>
+              </Box> }
+              
               <Link variant="subtitle2" component={RouterLink} to="/">Go Home</Link>
 
             </Stack>

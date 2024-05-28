@@ -93,30 +93,31 @@ export const authForgot = createAsyncThunk(
 
 export const authKey = createAsyncThunk(
   'auth/key',
-  async (username: string, thunkAPI) => {
+  async(username: string, thunkAPI) => {
     try {
-      return await apolloClient.query<GetLoginKeyMutation, GetLoginKeyMutationVariables>({
-        query: GET_AUTH_KEY,
+      return await apolloClient.mutate<GetLoginKeyMutation, GetLoginKeyMutationVariables>({
+        mutation: GET_AUTH_KEY,
         fetchPolicy: 'network-only',
         variables: {
           username,
         }
       })
-      .then((resp) => {
-        if(resp.error) {
-          return thunkAPI.rejectWithValue(resp.error)
-        } else if(resp.errors) {
-          return thunkAPI.rejectWithValue(resp.errors)
-        } else {
-          return thunkAPI.fulfillWithValue({
-            key: resp.data.GetLoginKey
-          })
-        }
-      })
+        .then((resp) => {
+          const { errors, data } =  resp;
+          if (errors) {
+            return thunkAPI.rejectWithValue(errors);
+          } else {
+            return thunkAPI.fulfillWithValue({
+              key: data?.GetLoginKey,
+            });
+          }
+        })
       .catch((err) => {
+        console.error(err)
         return thunkAPI.rejectWithValue(err.message)
       });
     } catch (e: any) {
+      console.error(e)
       return thunkAPI.rejectWithValue(e.response.data)
     }
   }
@@ -125,8 +126,8 @@ export const authKey = createAsyncThunk(
 export const authLogin = createAsyncThunk(
   'auth/login',
   async (payload: { username: string, password: string }, thunkAPI) => {
-    return await apolloClient.query<SignInMutation, SignInMutationVariables>({
-      query: AUTHENTICATE,
+    return await apolloClient.mutate<SignInMutation, SignInMutationVariables>({
+      mutation: AUTHENTICATE,
       fetchPolicy: 'network-only',
       variables: {
         username: payload.username,
@@ -134,20 +135,19 @@ export const authLogin = createAsyncThunk(
       }
     })
     .then((resp) => {
-      if(resp.error) {
-        return thunkAPI.rejectWithValue(resp.error)
-      } else if(resp.errors) {
-        return thunkAPI.rejectWithValue(resp.errors)
+      const { errors, data } =  resp;
+      if(errors) {
+        return thunkAPI.rejectWithValue(errors)
       } else {
         return thunkAPI.fulfillWithValue({
-          token: resp.data.SignIn.AccessToken,
-          id: resp.data.SignIn.User.Id,
-          date: resp.data.SignIn.User.CreatedOn,
-          email: resp.data.SignIn.User.Email,
-          username: resp.data.SignIn.User.Username,
-          firstname: resp.data.SignIn.User.FirstName || '',
-          lastname: resp.data.SignIn.User.LastName || '',
-          roles: resp.data.SignIn.User.Roles?.map(role => ({
+          token: data?.SignIn.AccessToken,
+          id: data?.SignIn.User.Id,
+          date: data?.SignIn.User.CreatedOn,
+          email: data?.SignIn.User.Email,
+          username: data?.SignIn.User.Username,
+          firstname: data?.SignIn.User.FirstName || '',
+          lastname: data?.SignIn.User.LastName || '',
+          roles: data?.SignIn.User.Roles?.map(role => ({
             Id: role.Id,
             RoleName: role.RoleName
           })) || []
@@ -289,7 +289,7 @@ export const authSlice = createSlice({
         state.loading = false
         state.error = error.message || 'An error occurred'
       })
-      .addCase(authKey.fulfilled, (state, { payload }) => {
+      .addCase(authKey.fulfilled, (state, {payload}) => {
         state.loading = false
         state.data = payload
       })
