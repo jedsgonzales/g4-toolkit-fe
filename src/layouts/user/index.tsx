@@ -23,6 +23,7 @@ import Topbar from './Topbar'
 // redux
 import { useSelector, useDispatch } from 'react-redux'
 import { authValidate } from 'src/redux/authSlice'
+import { SmartG4RootState } from 'src/redux/store'
 // hooks
 //import useScrollDirection from '@/hooks/useScrollDirection'
 
@@ -56,7 +57,7 @@ export default function Layout() {
     const [loading, setLoading] = useState(false)
     const [loaderMessage, setLoaderMessage] = useState('')
 
-    const auth = useSelector((state: any) => state.auth)
+    const auth = useSelector((state: SmartG4RootState) => state.auth)
 
     const dispatch = useDispatch<any>()
     const navigate = useNavigate()
@@ -65,7 +66,7 @@ export default function Layout() {
     useEffect(() => {
         (async () => {
             try {
-                if (!auth.data?.roles?.includes('user')) { // refresh
+                if (!auth.data?.roles?.find((r) => r.RoleName === 'Staff')) { // refresh
                     console.log('not an user')
                     // load user infos
                     //const token = localStorage.getItem('token')
