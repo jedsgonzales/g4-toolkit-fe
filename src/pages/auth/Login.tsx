@@ -103,9 +103,6 @@ export default function Login() {
         localStorage.remember = false
       }
 
-      
-
-
       try {
         await dispatch(authLogin({ ...values, password: maskedPass}));
         //await dispatch(authValidate({}))

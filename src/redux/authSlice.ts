@@ -3,7 +3,7 @@ import { apolloClient } from 'src/client/apollo'
 import { AUTHENTICATE, GET_AUTH_KEY, VALIDATE_TOKEN } from 'src/client/models/auth'
 import { GetLoginKeyMutation, GetLoginKeyMutationVariables, SignInMutation, SignInMutationVariables, ValidateAuthQuery, ValidateAuthQueryVariables } from 'src/client/types/graphql'
 import { delStorageObject, getSessionId, saveStorageObject } from 'src/utils/storage'
-import { roles } from './rolesSlice'
+/* import { roles } from './rolesSlice' */
 
 const BACKEND_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000/api/v1'
 
@@ -25,10 +25,10 @@ interface AuthState extends Object {
   error?: string
 }
 
-const TestData = [
+/* const TestData = [
   { id: '123-123456-1234', date: '2024-01-01', email: 'admin@g4.com', username: 'admin_g4', firstname: 'Admin', lastname: 'Account', roles: ['admin'], token: '12345678901' },
   { id: '123-123456-1235', date: '2024-01-02', email: 'user@g4.com', username: 'user_g4', firstname: 'User', lastname: 'Account', roles: ['user'], token: '12345678902' },
-]
+] */
 
 const initialState: AuthState = {
   data: undefined,
