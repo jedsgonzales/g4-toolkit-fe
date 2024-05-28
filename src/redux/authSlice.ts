@@ -1,4 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
+import { DateTime } from 'luxon'
 import { apolloClient } from 'src/client/apollo'
 import { AUTHENTICATE, GET_AUTH_KEY, VALIDATE_TOKEN } from 'src/client/models/auth'
 import { GetLoginKeyMutation, GetLoginKeyMutationVariables, SignInMutation, SignInMutationVariables, ValidateAuthQuery, ValidateAuthQueryVariables } from 'src/client/types/graphql'
@@ -17,6 +18,7 @@ type AuthType = {
   firstname?: String
   lastname?: String
   roles?: { Id: string, RoleName: string }[]
+  validationCode?: string
 }
 
 interface AuthState extends Object {
@@ -90,7 +92,6 @@ export const authForgot = createAsyncThunk(
   }
 )
 
-
 export const authKey = createAsyncThunk(
   'auth/key',
   async(username: string, thunkAPI) => {
@@ -139,6 +140,8 @@ export const authLogin = createAsyncThunk(
       if(errors) {
         return thunkAPI.rejectWithValue(errors)
       } else {
+        const timeFrame = DateTime.local().startOf('hour').toFormat('yyyyMMddHHmmss');
+        
         return thunkAPI.fulfillWithValue({
           token: data?.SignIn.AccessToken,
           id: data?.SignIn.User.Id,
@@ -150,7 +153,8 @@ export const authLogin = createAsyncThunk(
           roles: data?.SignIn.User.Roles?.map(role => ({
             Id: role.Id,
             RoleName: role.RoleName
-          })) || []
+          })) || [],
+          validationCode: timeFrame,
         })
       }
     })
@@ -214,20 +218,18 @@ export const authUnlink = createAsyncThunk(
 
 export const authValidate = createAsyncThunk(
   'auth/validate',
-  async (payload: { token?: String }, thunkAPI) => {
+  async (payload: { token?: String, validationCode: string }, thunkAPI) => {
     return await apolloClient.query<ValidateAuthQuery, ValidateAuthQueryVariables>({
       query: VALIDATE_TOKEN,
       fetchPolicy: 'network-only',
     })
     .then((resp) => {
-      if(resp.error) {
-        return thunkAPI.rejectWithValue(resp.error)
-      } else if(resp.errors) {
+      if(resp.errors) {
         return thunkAPI.rejectWithValue(resp.errors)
       } else {
         const token = getSessionId();
         return thunkAPI.fulfillWithValue({
-          token: token || '',
+          token: token || getSessionId() || '',
           id: resp.data.ValidateAuth.Id,
           date: resp.data.ValidateAuth.CreatedOn,
           email: resp.data.ValidateAuth.Email,
@@ -237,7 +239,8 @@ export const authValidate = createAsyncThunk(
           roles: resp.data.ValidateAuth.Roles?.map(role => ({
             Id: role.Id,
             RoleName: role.RoleName
-          })) || []
+          })) || [],
+          validationCode: payload.validationCode,
         })
       }
     })

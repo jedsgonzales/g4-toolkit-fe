@@ -30,8 +30,9 @@ import { LoadingButton } from '@mui/lab'
 // redux
 import { useDispatch, useSelector } from 'react-redux'
 import { authKey, authLogin, authValidate } from 'src/redux/authSlice'
-import { SmartG4RootState } from 'src/redux/store'
-import crypto from 'crypto';
+import { SmartG4Dispatch, SmartG4RootState } from 'src/redux/store'
+import * as crypto from 'crypto';
+import { DateTime } from 'luxon';
 
 // ----------------------------------------------------------------------
 const ContentStyle = styled('div')(() => ({
@@ -67,7 +68,7 @@ export default function Login() {
 
   const [showPassword, setShowPassword] = useState(false)
 
-  const dispatch = useDispatch<any>()
+  const dispatch = useDispatch<SmartG4Dispatch>()
   const navigate = useNavigate()
   const { pathname } = useLocation()
 
@@ -144,6 +145,10 @@ export default function Login() {
   const { values, errors, touched, isSubmitting, handleSubmit, getFieldProps } = formik
 
   useEffect(() => {
+    if(!auth.data?.token){
+      return;
+    }
+
     if (auth.data?.roles?.find((r) => r.RoleName === "Admin") && !pathname.includes('/admin/')) {
       console.log('move to admin dashboard')
       navigate('/admin', { replace: true })
@@ -152,16 +157,21 @@ export default function Login() {
       console.log('move to user dashboard')
       navigate('/user', { replace: true })
     }
-    //else {
-    //  googleLogout()
-    //}
-    /*
-    if (auth.id && !pathname.includes('/dashboard/')) {
-      console.log('move to dashbord', auth)
-      navigate('/dashboard', { replace: true })
-    }
-    */
+
   }, [navigate, auth.data?.roles, pathname])
+
+  useEffect(() => {
+    const timeFrame = DateTime.local().startOf('hour').toFormat('yyyyMMddHHmmss');
+    if(auth.data?.token) {
+      if (auth.data?.validationCode !== timeFrame){
+        dispatch(authValidate({ validationCode: timeFrame }))
+      } else if (auth.data?.validationCode === timeFrame) {
+        navigate('/admin/users', { replace: true })
+      }    
+    } else {
+      // remain here
+    }
+  }, [auth.data?.validationCode]);
 
   const getLoginKey = async () => {
     await dispatch(authKey(values.username));
@@ -188,7 +198,6 @@ export default function Login() {
                 error={Boolean(touched.username && errors.username)}
                 helperText={touched.username && errors.username}
                 disabled={isSubmitting}
-                onBlur={getLoginKey}
               />
               { !!auth.data?.key && <TextField
                 fullWidth
@@ -246,9 +255,10 @@ export default function Login() {
                   color="primary"
                   fullWidth
                   size="large"
-                  type="submit"
+                  type="button"
                   variant="contained"
                   loading={auth.loading}
+                  onClick={getLoginKey}
                 >
                   Next
                 </LoadingButton>
