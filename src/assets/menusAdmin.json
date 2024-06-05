@@ -1,5 +1,9 @@
 [
   {
+    "title": "filters",
+    "path": "/admin/filters"
+  },
+  {
     "title": "users",
     "path": "/admin/users"
   },

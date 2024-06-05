@@ -23,7 +23,7 @@ import LocationsListU from './pages/user/LocationsList'
 import DevicesListU from './pages/user/DevicesList'
 
 
-function App() {
+const App = () => {
   return (
     <ThemeConfig>
       <SnackbarProvider maxSnack={3}>

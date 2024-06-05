@@ -1,10 +1,10 @@
 import { CodegenConfig } from "@graphql-codegen/cli";
 import 'dotenv/config';
 
-console.log('API', process.env.GRAPH_API);
+console.log('API', process.env.VITE_GRAPH_API);
 
 const config: CodegenConfig = {
-  schema: process.env.GRAPH_API,
+  schema: process.env.VITE_GRAPH_API,
   documents: ["src/client/**/*.ts", "src/client/**/*.tsx"],
   generates: {
     "src/client/types/": {

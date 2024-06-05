@@ -35,6 +35,7 @@ import { useSelector, useDispatch } from 'react-redux'
 // utils
 //import numeral from 'numeral'
 import { format } from 'date-fns'
+import { SmartG4RootState } from 'src/redux/store'
 //import { applySortFilter, getComparator } from '@/utils/filterObjects'
 
 // ----------------------------------------------------------------------
@@ -60,7 +61,7 @@ export default function UsersList() {
   const dispatch = useDispatch<ThunkDispatch<any, any, any>>()
   const { enqueueSnackbar, closeSnackbar } = useSnackbar()
 
-  const users = useSelector((state: any) => state.users)
+  const users = useSelector((state: SmartG4RootState) => state.users)
 
   const [loading, setLoading] = useState(false)
 
@@ -89,7 +90,8 @@ export default function UsersList() {
 
   const handleOpenForm = (id: any) => {
     if (id) {
-      setSelectedItem(users.data.items.find((obj: any) => obj.id === id))
+      const result = users.data.items.find((obj: any) => obj.id === id);
+      result && setSelectedItem(result);
     }
     else {
       setSelectedItem({})

@@ -1,84 +1,107 @@
-import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { Outlet } from 'react-router-dom'
+import { useEffect, useState } from "react";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 //import { HashLink as Link } from 'react-router-hash-link'
 // material
-import { styled, alpha } from '@mui/material/styles'
 import {
   Backdrop,
-  CircularProgress,
-  Typography,
-  Stack,
-  Fab,
   Box,
-} from '@mui/material'
+  CircularProgress,
+  Fab,
+  Stack,
+  Typography,
+} from "@mui/material";
+import { alpha, styled } from "@mui/material/styles";
 // icons
-import KeyboardArrowUp from '@mui/icons-material/KeyboardArrowUp'
 // components
 // layout components
-import menus from 'src/assets/menusAdmin.json'
-import Topbar from './Topbar'
+import menus from "src/assets/menusAdmin.json";
+import Topbar from "./Topbar";
 //import Sidebar from './Sidebar'
 //import Footer from '@/components/Footer'
 // redux
-import { useSelector, useDispatch } from 'react-redux'
-import { authValidate } from 'src/redux/authSlice'
-import { SmartG4RootState } from 'src/redux/store'
+import { DateTime } from "luxon";
+import { useDispatch, useSelector } from "react-redux";
+import { authValidate, authValidating } from "src/redux/authSlice";
+import { SmartG4Dispatch, SmartG4RootState } from "src/redux/store";
 // hooks
 //import useScrollDirection from '@/hooks/useScrollDirection'
 
-
 // ----------------------------------------------------------------------
-const RootStyle = styled('div')({
-  display: 'flex',
-})
+const RootStyle = styled("div")({
+  display: "flex",
+});
 
-const MainStyle = styled('div')(({ theme }) => ({
+const MainStyle = styled("div")(({ theme }) => ({
   flexGrow: 1,
-}))
+}));
 const FabStyle = styled(Fab)(({ theme }) => ({
   //background: 'linear-gradient(to right, #F5C043, #E78531)',
-  background: alpha('#FFC34C', 0.5),
+  background: alpha("#FFC34C", 0.5),
   fontWeight: 900,
-  borderRadius: '100px',
-  '&:hover': {
-    backgroundColor: '#FFD95A',
+  borderRadius: "100px",
+  "&:hover": {
+    backgroundColor: "#FFD95A",
     //background: alpha('#FFC34C', 0.5),
-    borderColor: '#0062cc',
-    boxShadow: 'none',
+    borderColor: "#0062cc",
+    boxShadow: "none",
   },
-}))
+}));
 // ----------------------------------------------------------------------
 
 export default function Layout() {
   //const { scrolled } = useScrollDirection()
 
-  const [open, setOpen] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [loaderMessage, setLoaderMessage] = useState('')
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [loaderMessage, setLoaderMessage] = useState("");
 
-  const auth = useSelector((state: SmartG4RootState) => state.auth)
+  const auth = useSelector((state: SmartG4RootState) => state.auth);
 
-  const dispatch = useDispatch<any>()
-  const navigate = useNavigate()
+  const dispatch = useDispatch<SmartG4Dispatch>();
+  const navigate = useNavigate();
+
+  const { pathname } = useLocation();
 
   useEffect(() => {
+    if (!auth.data && !pathname.startsWith("/login")) {
+      navigate("/login", { replace: true });
+    } else if (!auth.data && pathname.startsWith("/login")) {
+      return;
+    }
+
+    if (auth.validating) return;
+
+    const timeFrame = DateTime.local()
+      .startOf("hour")
+      .toFormat("yyyyMMddHHmmss");
+
+    if (auth.data?.token) {
+      if (auth.data?.validationMark !== timeFrame) {
+        dispatch(authValidating(true));
+        dispatch(
+          authValidate({ token: auth.data.token, validationCode: timeFrame })
+        );
+      } else {
+        navigate("/admin/users", { replace: true });
+      }
+    }
+
     (async () => {
       try {
-        if (!auth.data?.roles?.find((r) => r.RoleName === 'Admin')) { // refresh
-          console.log('not an admin')
+        if (!auth.data?.roles?.find((r) => r.RoleName === "Admin")) {
+          // refresh
+          console.log("not an admin");
           // load user infos
           //const token = localStorage.getItem('token')
           // revalidate validate admin
           //let response
           //if (token && token !== '') response = await dispatch(authValidate({}))
           //if (!response?.payload.roles.includes('admin')) {
-          navigate('/login', { replace: true })
+          navigate("/login", { replace: true });
           //}
-        }
-        else {
-          console.log('load admin lists')
-          setLoading(true)
+        } else {
+          console.log("load admin lists");
+          setLoading(true);
           // load data
           //setLoaderMessage('Loading Lotty Essentials')
           //await dispatch(lottyList())
@@ -103,16 +126,15 @@ export default function Layout() {
           // load vouchers
           //setLoaderMessage('Loading Vouchers')
           //await dispatch(vouchersList())
-          setLoading(false)
+          setLoading(false);
         }
-      }
-      catch (error) {
+      } catch (error) {
         //setLoaderMessage('Error occured while loading data')
-        console.error(error)
-        navigate('/maintenance', { replace: true })
+        console.error(error);
+        navigate("/maintenance", { replace: true });
       }
-    })()
-  }, [dispatch, auth.data?.roles])
+    })();
+  }, [dispatch, auth.data?.roles]);
 
   //useEffect(() => {
   //  const token = localStorage.getItem('token')
@@ -158,7 +180,7 @@ export default function Layout() {
         {/*<Footer />*/}
       </MainStyle>
       <Backdrop
-        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
         open={loading}
       >
         <Stack spacing={2} justifyContent="center" alignItems="center">
@@ -169,5 +191,5 @@ export default function Layout() {
         </Stack>
       </Backdrop>
     </RootStyle>
-  )
+  );
 }

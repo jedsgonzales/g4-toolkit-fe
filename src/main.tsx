@@ -11,26 +11,31 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
 )
 */
 
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import { BrowserRouter } from 'react-router-dom'
-import { HelmetProvider } from 'react-helmet-async'
-import { GoogleOAuthProvider } from '@react-oauth/google'
-import { Provider } from 'react-redux'
-import App from './App'
-import { store } from './redux/store'
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { BrowserRouter } from "react-router-dom";
+import { HelmetProvider } from "react-helmet-async";
+import { GoogleOAuthProvider } from "@react-oauth/google";
+import { Provider } from "react-redux";
+import App from "./App";
+import { store } from "./redux/store";
+import { ApolloProvider } from "@apollo/client";
+import { apolloClient } from "./client/apollo";
 
-
-ReactDOM.createRoot(document.getElementById('root')!).render(
+ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <HelmetProvider>
-      <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID}>
-        <BrowserRouter>
-          <Provider store={store}>
-            <App />
-          </Provider>
-        </BrowserRouter>
-      </GoogleOAuthProvider>
-    </HelmetProvider>
+    <ApolloProvider client={apolloClient}>
+      <HelmetProvider>
+        <GoogleOAuthProvider
+          clientId={import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID}
+        >
+          <BrowserRouter>
+            <Provider store={store}>
+              <App />
+            </Provider>
+          </BrowserRouter>
+        </GoogleOAuthProvider>
+      </HelmetProvider>
+    </ApolloProvider>
   </React.StrictMode>
-)
+);
