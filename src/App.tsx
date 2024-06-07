@@ -21,6 +21,7 @@ import DevicesList from './pages/admin/DevicesList'
 // user pages
 import LocationsListU from './pages/user/LocationsList'
 import DevicesListU from './pages/user/DevicesList'
+import SystemFilterList from './pages/admin/SystemFilters'
 
 
 const App = () => {
@@ -29,7 +30,8 @@ const App = () => {
       <SnackbarProvider maxSnack={3}>
         <Routes>
           <Route path='/admin' element={<AdminLayout />}>
-            <Route path='' element={<Navigate to='users' />} />
+            <Route path='' element={<Navigate to='system-filters' />} />
+            <Route path='system-filters' element={<SystemFilterList />} />
             <Route path='users' element={<UsersList />} />
             <Route path='devices' element={<DevicesList />} />
             <Route path='locations' element={<LocationsList />} />

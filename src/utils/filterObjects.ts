@@ -1,4 +1,5 @@
 import { filter } from 'lodash'
+import { number } from 'yup';
 
 // ----------------------------------------------------------------------
 
@@ -34,3 +35,41 @@ export function applySortFilter(array: any, comparator: Function, queryBy: strin
 }
 
 //const filteredObjects = applySortFilter(projects, getComparator('asc', 'name'), filterName);
+
+export const filterMatch = (value: unknown, filter: string): boolean => {
+  if(!filter){
+    return true;
+  }
+
+  let isMatch = false;
+
+  if (typeof value === 'string'){
+    isMatch = (value as string).toLowerCase().includes(filter);
+
+  } else if (typeof value === 'number'){
+    isMatch = (value as number).toString().toLowerCase().includes(filter);
+
+  } else if (typeof value === 'boolean'){
+    isMatch = (value as boolean ? 'true' : 'false').toLowerCase().includes(filter);
+
+  } else if (Array.isArray(value)){
+    isMatch = (value as Array<unknown>).map((val) => filterMatch(val, filter)).reduce((p, c) => (p && c), true);
+
+  } else {
+    // maybe an object
+    try {
+      const obj = JSON.parse(JSON.stringify(value));
+      for(const itemKey in obj){
+        isMatch &&= filterMatch(obj[itemKey], filter);
+      }
+    } catch (err) {
+      isMatch = (value as any).toString().toLowerCase().includes(filter);
+    }
+  }
+
+  return isMatch;
+}
+
+export const collectionFilter = <T>(collection: T[], textFilter: string) => {
+  return collection.filter((item) => filterMatch(item, textFilter.toLowerCase()));
+}
