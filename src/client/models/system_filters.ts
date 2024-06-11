@@ -49,9 +49,7 @@ export const UPDATE_SOURCE_FILTER = gql`
 `;
 
 export const DEL_SOURCE_FILTER = gql`
-  mutation DeleteFilter($filterId: String!) {
-    DeleteFilter(filterId: $filterId) {
-      Id
-    }
+  mutation DeleteFilter($filterIds: [String!]!) {
+    DeleteFilter(filterIds: $filterIds)
   }
 `;

@@ -18,6 +18,12 @@ import {
   Button,
   TableHead,
   TableCellProps,
+  Checkbox,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
 } from "@mui/material";
 // icons
 import CloseIcon from "@mui/icons-material/Close";
@@ -37,38 +43,45 @@ import { useSelector, useDispatch } from "react-redux";
 //import numeral from 'numeral'
 import { format } from "date-fns";
 import { SmartG4Dispatch, SmartG4RootState } from "src/redux/store";
-import { useLazyQuery } from "@apollo/client";
+import { useLazyQuery, useMutation } from "@apollo/client";
 import {
+  DEL_SOURCE_FILTER,
   GET_EXISTING_FILTERS,
   GET_PENDING_FILTERS,
+  UPDATE_SOURCE_FILTER,
 } from "src/client/models/system_filters";
 import {
   CurrentSourceFiltersQuery,
   CurrentSourceFiltersQueryVariables,
+  DeleteFilterMutation,
+  DeleteFilterMutationVariables,
   PendingSourceFiltersQuery,
   PendingSourceFiltersQueryVariables,
+  UpdateFilterMutation,
+  UpdateFilterMutationVariables,
 } from "src/client/types/graphql";
 import { collectionFilter } from "src/utils/filterObjects";
+import { Delete, Edit } from "@mui/icons-material";
 
 // ----------------------------------------------------------------------
 const CurrentFilterCols = [
   /* { id: "ruleId", label: "", align: 'left', sort: false }, */
-  { id: "orderNo", label: "Order", align: 'left', sort: true },
-  { id: "ruleName", label: "Rule Name", align: 'left', sort: true },
-  { id: "sourceIp", label: "Source IP", align: 'left', sort: true },
-  { id: "subnetId", label: "Subnet ID", align: 'left', sort: false },
-  { id: "deviceId", label: "Device ID", align: 'left', sort: true },
-  { id: "filterAction", label: "Filter Action", align: 'left', sort: true },
-  { id: "discoveryTime", label: "Detected On", align: 'left' },
-  { id: "modificationTime", label: "Modified On", align: 'left' },
+  { id: "orderNo", label: "Order", align: "left", sort: true },
+  { id: "ruleName", label: "Rule Name", align: "left", sort: true },
+  { id: "sourceIp", label: "Source IP", align: "left", sort: true },
+  { id: "subnetId", label: "Subnet ID", align: "left", sort: false },
+  { id: "deviceId", label: "Device ID", align: "left", sort: true },
+  { id: "filterAction", label: "Filter Action", align: "left", sort: true },
+  { id: "discoveryTime", label: "Detected On", align: "left" },
+  { id: "modificationTime", label: "Modified On", align: "left" },
 ];
 
 const PendingFilterCols = [
-  { id: "orderNo", label: "Order", align: 'left', sort: true },
-  { id: "sourceIp", label: "Source IP", align: 'left', sort: true },
-  { id: "subnetId", label: "Subnet ID", align: 'left', sort: false },
-  { id: "deviceId", label: "Device ID", align: 'left', sort: true },
-  { id: "discoveryTime", label: "Detected On", align: 'left' },
+  { id: "orderNo", label: "Order", align: "left", sort: true },
+  { id: "sourceIp", label: "Source IP", align: "left", sort: true },
+  { id: "subnetId", label: "Subnet ID", align: "left", sort: false },
+  { id: "deviceId", label: "Device ID", align: "left", sort: true },
+  { id: "discoveryTime", label: "Detected On", align: "left" },
 ];
 
 // ----------------------------------------------------------------------
@@ -85,6 +98,7 @@ interface TableState {
   filter: string;
   page: number;
   rowsPerPage: number;
+  selected: string[];
 }
 
 interface TableStates {
@@ -101,13 +115,17 @@ export default function SystemFilterList() {
       filter: "",
       page: 0,
       rowsPerPage: 5,
+      selected: [],
     },
     pending: {
       filter: "",
       page: 0,
       rowsPerPage: 5,
+      selected: [],
     },
   });
+
+  const [deleteSelection, setDeleteSelection] = useState<keyof TableStates>();
 
   const {
     currentFilters,
@@ -115,6 +133,10 @@ export default function SystemFilterList() {
     loading,
     setSystemTextFilter,
     setPendingTextFilter,
+    saveFilter,
+    savingFilter,
+    deleteFilter,
+    deletingFilter,
   } = useSystemFilterRecords();
 
   useEffect(() => {
@@ -163,6 +185,64 @@ export default function SystemFilterList() {
     });
   };
 
+  const isSelected = (id: string, table: keyof TableStates) => {
+    return tableStates[table].selected.includes(id);
+  };
+
+  const setSelected = (id: string, table: keyof TableStates) => {
+    if (!tableStates[table].selected.includes(id)) {
+      setTableStates(() => {
+        return {
+          ...tableStates,
+          [table]: {
+            ...tableStates[table],
+            selected: [...tableStates[table].selected, id],
+          },
+        };
+      });
+    }
+  };
+
+  const deSelect = (id: string, table: keyof TableStates) => {
+    if (tableStates[table].selected.includes(id)) {
+      setTableStates(() => {
+        return {
+          ...tableStates,
+          [table]: {
+            ...tableStates[table],
+            selected: tableStates[table].selected.filter((item) => id !== item),
+          },
+        };
+      });
+    }
+  };
+
+  const deleteFilterSelection = (table: keyof TableStates) => {
+    setDeleteSelection(table);
+  };
+
+  const cancelDelete = () => {
+    setDeleteSelection(undefined);
+  };
+
+  const confirmDelete = () => {
+    if (!deleteSelection) return;
+
+    deleteFilter(tableStates[deleteSelection].selected).then(() => {
+      setTableStates(() => {
+        setDeleteSelection(() => undefined);
+        return {
+          ...tableStates,
+          [deleteSelection]: {
+            ...tableStates[deleteSelection],
+            selected: [],
+          },
+        };
+      });
+
+    });
+  };
+
   return (
     <Page title={"Admin - Filters"}>
       {/* Modals */}
@@ -174,14 +254,11 @@ export default function SystemFilterList() {
           sx={{
             minHeight: "500px",
             width: "100%",
-            //backgroundImage: 'url(/static/overlay.svg), url(/static/home/hero.png)',
-            //backgroundPosition: 'center',
-            //backgroundSize: 'cover',
             pt: 12,
           }}
         >
           <Stack direction="column" alignItems="center" justifyContent="center">
-            <Typography variant="h2" align="center">
+            <Typography variant="h4" align="center">
               System Filters
             </Typography>
           </Stack>
@@ -196,18 +273,33 @@ export default function SystemFilterList() {
               overflow: "auto",
             }}
           >
+            <Stack direction="row">
+              <Button
+                variant="outlined"
+                startIcon={<Delete />}
+                disabled={!tableStates.current.selected.length}
+                onClick={() => {
+                  deleteFilterSelection("current");
+                }}
+              >
+                Delete
+              </Button>
+            </Stack>
             <Scrollbar>
               <TableContainer
                 component={Paper}
                 sx={{ width: "100%", display: "table", tableLayout: "fixed" }}
               >
                 <Table>
-                <TableHead>
+                  <TableHead>
                     <TableRow>
+                      <TableCell key={"tool-col"} align="left">
+                        {" "}
+                      </TableCell>
                       {CurrentFilterCols.map((column) => (
                         <TableCell
                           key={column.id}
-                          align={column.align as TableCellProps['align']}
+                          align={column.align as TableCellProps["align"]}
                         >
                           {column.label}
                         </TableCell>
@@ -219,7 +311,7 @@ export default function SystemFilterList() {
                       <TableRow>
                         <TableCell
                           align="center"
-                          colSpan={CurrentFilterCols.length}
+                          colSpan={CurrentFilterCols.length + 1}
                           sx={{ py: 3 }}
                         >
                           <Typography variant="caption" align="center">
@@ -233,7 +325,7 @@ export default function SystemFilterList() {
                       <TableRow>
                         <TableCell
                           align="center"
-                          colSpan={CurrentFilterCols.length}
+                          colSpan={CurrentFilterCols.length + 1}
                           sx={{ py: 3 }}
                         >
                           <SearchNotFound
@@ -253,16 +345,26 @@ export default function SystemFilterList() {
                         )
                       : currentFilters
                     ).map((row, idx: number) => {
+                      const itemIsSelected = isSelected(row.Id, "current");
                       return (
                         <TableRow
                           hover
                           key={idx}
                           tabIndex={-1}
-                          //role="checkbox"
-                          //selected={isItemSelected}
-                          //aria-checked={isItemSelected}
+                          role="checkbox"
+                          selected={itemIsSelected}
+                          aria-checked={itemIsSelected}
                           // onClick={() => handleOpenForm(id)}
                         >
+                          <TableCell align="left">
+                            <Checkbox checked={itemIsSelected} />
+                            <IconButton
+                              aria-label="edit"
+                              disabled={savingFilter || deletingFilter}
+                            >
+                              <Edit />
+                            </IconButton>
+                          </TableCell>
                           <TableCell align="left">{row.OrderNo}</TableCell>
                           <TableCell align="left">
                             <Stack
@@ -357,7 +459,7 @@ export default function SystemFilterList() {
           }}
         >
           <Stack direction="column" alignItems="center" justifyContent="center">
-            <Typography variant="h2" align="center">
+            <Typography variant="h4" align="center">
               Pending System Filters
             </Typography>
           </Stack>
@@ -372,18 +474,33 @@ export default function SystemFilterList() {
               overflow: "auto",
             }}
           >
+            <Stack direction="row">
+              <Button
+                variant="outlined"
+                startIcon={<Delete />}
+                disabled={!tableStates.pending.selected.length}
+                onClick={() => {
+                  deleteFilterSelection("pending");
+                }}
+              >
+                Delete
+              </Button>
+            </Stack>
             <Scrollbar>
               <TableContainer
                 component={Paper}
                 sx={{ width: "100%", display: "table", tableLayout: "fixed" }}
               >
                 <Table>
-                <TableHead>
+                  <TableHead>
                     <TableRow>
+                      <TableCell key={"tool-col"} align="left">
+                        {" "}
+                      </TableCell>
                       {PendingFilterCols.map((column) => (
                         <TableCell
                           key={column.id}
-                          align={column.align as TableCellProps['align']}
+                          align={column.align as TableCellProps["align"]}
                         >
                           {column.label}
                         </TableCell>
@@ -395,7 +512,7 @@ export default function SystemFilterList() {
                       <TableRow>
                         <TableCell
                           align="center"
-                          colSpan={PendingFilterCols.length}
+                          colSpan={PendingFilterCols.length + 1}
                           sx={{ py: 3 }}
                         >
                           <Typography variant="caption" align="center">
@@ -409,7 +526,7 @@ export default function SystemFilterList() {
                       <TableRow>
                         <TableCell
                           align="center"
-                          colSpan={PendingFilterCols.length}
+                          colSpan={PendingFilterCols.length + 1}
                           sx={{ py: 3 }}
                         >
                           <SearchNotFound
@@ -429,18 +546,33 @@ export default function SystemFilterList() {
                         )
                       : pendingFilters
                     ).map((row, idx: number) => {
+                      const itemIsSelected = isSelected(row.Id, "pending");
+
                       return (
                         <TableRow
                           hover
                           key={idx}
                           tabIndex={-1}
-                          //role="checkbox"
-                          //selected={isItemSelected}
-                          //aria-checked={isItemSelected}
-                          // onClick={() => handleOpenForm(id)}
+                          role="checkbox"
+                          selected={itemIsSelected}
+                          aria-checked={itemIsSelected}
+                          onClick={() =>
+                            itemIsSelected
+                              ? deSelect(row.Id, "pending")
+                              : setSelected(row.Id, "pending")
+                          }
                         >
+                          <TableCell>
+                            <Checkbox checked={itemIsSelected} />
+                            <IconButton
+                              aria-label="edit"
+                              disabled={savingFilter || deletingFilter}
+                            >
+                              <Edit />
+                            </IconButton>
+                          </TableCell>
                           <TableCell align="left">{row.OrderNo}</TableCell>
-                          
+
                           <TableCell align="left">
                             <Stack
                               direction="row"
@@ -484,6 +616,27 @@ export default function SystemFilterList() {
           </Card>
         </Box>
       </Stack>
+      <Dialog
+        open={!!deleteSelection}
+        onClose={cancelDelete}
+        aria-labelledby="delete-filter-title"
+        aria-describedby="delete-filter-description"
+      >
+        <DialogTitle id="delete-filter-title">
+          {"Delete Selected Filters?"}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="delete-filter-description">
+            Deleting these filters will remove these rules on the list. Proceed?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={cancelDelete}>Cancel</Button>
+          <Button onClick={confirmDelete} autoFocus>
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Page>
   );
 }
@@ -513,12 +666,29 @@ const useSystemFilterRecords = () => {
       data: pendingData,
       loading: loadingPending,
       error: pendingError,
+      refetch: reloadPendingFilters,
       /* called: loadedPendingFilters, */
     },
   ] = useLazyQuery<
     PendingSourceFiltersQuery,
     PendingSourceFiltersQueryVariables
   >(GET_PENDING_FILTERS, { fetchPolicy: "network-only" });
+
+  const [
+    delSystemFilter,
+    { data: deleteComplete, loading: deletingFilter, error: deleteFailed },
+  ] = useMutation<DeleteFilterMutation, DeleteFilterMutationVariables>(
+    DEL_SOURCE_FILTER,
+    { fetchPolicy: "network-only" }
+  );
+
+  const [
+    saveSystemFilter,
+    { data: savingCompleted, loading: savingFilter, error: savingFailed },
+  ] = useMutation<UpdateFilterMutation, UpdateFilterMutationVariables>(
+    UPDATE_SOURCE_FILTER,
+    { fetchPolicy: "network-only" }
+  );
 
   const [currentFilters, setCurrentFilters] = useState<
     CurrentSourceFiltersQuery["CurrentSourceFilters"]
@@ -570,6 +740,56 @@ const useSystemFilterRecords = () => {
     }
   }, [pendingData, pendingError]);
 
+  useEffect(() => {
+    if (savingCompleted) {
+      enqueueSnackbar("Filter Updated", {
+        variant: "info",
+        action: (key) => (
+          <IconButton size="small" onClick={() => closeSnackbar(key)}>
+            <CloseIcon />
+          </IconButton>
+        ),
+      });
+    } else if (savingFailed) {
+      enqueueSnackbar("Filter Update Failed", {
+        variant: "error",
+        action: (key) => (
+          <IconButton size="small" onClick={() => closeSnackbar(key)}>
+            <CloseIcon />
+          </IconButton>
+        ),
+      });
+    }
+
+    reloadSystemFilters();
+    reloadPendingFilters();
+  }, [savingCompleted, savingFailed]);
+
+  useEffect(() => {
+    if (deleteComplete) {
+      enqueueSnackbar("Filter(s) Deleted", {
+        variant: "info",
+        action: (key) => (
+          <IconButton size="small" onClick={() => closeSnackbar(key)}>
+            <CloseIcon />
+          </IconButton>
+        ),
+      });
+    } else if (deleteFailed) {
+      enqueueSnackbar("Filter Delete Failed", {
+        variant: "error",
+        action: (key) => (
+          <IconButton size="small" onClick={() => closeSnackbar(key)}>
+            <CloseIcon />
+          </IconButton>
+        ),
+      });
+    }
+
+    reloadSystemFilters();
+    reloadPendingFilters();
+  }, [deleteComplete, deleteFailed]);
+
   const inEffectFilters = useMemo(() => {
     return !!systemTextFilter
       ? collectionFilter(currentFilters, systemTextFilter)
@@ -582,6 +802,22 @@ const useSystemFilterRecords = () => {
       : pendingFilters;
   }, [pendingTextFilter, pendingFilters]);
 
+  const deleteFilter = async (ids: string[]) => {
+    return await delSystemFilter({
+      variables: {
+        filterIds: ids,
+      },
+    });
+  };
+
+  const saveFilter = async (input: UpdateFilterMutationVariables["filter"]) => {
+    return await saveSystemFilter({
+      variables: {
+        filter: input,
+      },
+    });
+  };
+
   return {
     currentFilters: inEffectFilters,
     pendingFilters: inPendingFilters,
@@ -591,5 +827,9 @@ const useSystemFilterRecords = () => {
     reload: () => {
       reloadSystemFilters();
     },
+    deleteFilter,
+    deletingFilter,
+    saveFilter,
+    savingFilter,
   };
 };

@@ -110,7 +110,7 @@ export type DeviceIdentityInput = {
 
 export type Mutation = {
   __typename?: 'Mutation';
-  DeleteFilter: SystemFilter;
+  DeleteFilter: Scalars['Int']['output'];
   GetLoginKey: Scalars['String']['output'];
   SignIn: AuthResult;
   UpdateDeviceFilter: Scalars['Boolean']['output'];
@@ -119,7 +119,7 @@ export type Mutation = {
 
 
 export type MutationDeleteFilterArgs = {
-  filterId: Scalars['String']['input'];
+  filterIds: Array<Scalars['String']['input']>;
 };
 
 
@@ -280,7 +280,7 @@ export type SystemFilter = {
   Id: Scalars['ID']['output'];
   Ip: Scalars['String']['output'];
   OrderNo: Scalars['Int']['output'];
-  RuleName: Scalars['String']['output'];
+  RuleName?: Maybe<Scalars['String']['output']>;
   SubnetId?: Maybe<Scalars['String']['output']>;
   UpdatedBy?: Maybe<Scalars['String']['output']>;
   UpdatedOn?: Maybe<Scalars['DateTime']['output']>;
@@ -338,26 +338,26 @@ export type ValidateAuthQuery = { __typename?: 'Query', ValidateAuth?: { __typen
 export type CurrentSourceFiltersQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type CurrentSourceFiltersQuery = { __typename?: 'Query', CurrentSourceFilters: Array<{ __typename?: 'SystemFilter', Id: string, RuleName: string, OrderNo: number, Ip: string, DeviceId?: string | null, SubnetId?: string | null, FilterAction: string, DetectedOn: any, UpdatedOn?: any | null, UpdatedBy?: string | null }> };
+export type CurrentSourceFiltersQuery = { __typename?: 'Query', CurrentSourceFilters: Array<{ __typename?: 'SystemFilter', Id: string, RuleName?: string | null, OrderNo: number, Ip: string, DeviceId?: string | null, SubnetId?: string | null, FilterAction: string, DetectedOn: any, UpdatedOn?: any | null, UpdatedBy?: string | null }> };
 
 export type PendingSourceFiltersQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type PendingSourceFiltersQuery = { __typename?: 'Query', PendingSourceFilters: Array<{ __typename?: 'SystemFilter', Id: string, RuleName: string, OrderNo: number, Ip: string, DeviceId?: string | null, SubnetId?: string | null, DetectedOn: any }> };
+export type PendingSourceFiltersQuery = { __typename?: 'Query', PendingSourceFilters: Array<{ __typename?: 'SystemFilter', Id: string, RuleName?: string | null, OrderNo: number, Ip: string, DeviceId?: string | null, SubnetId?: string | null, DetectedOn: any }> };
 
 export type UpdateFilterMutationVariables = Exact<{
   filter: SystemFilterInput;
 }>;
 
 
-export type UpdateFilterMutation = { __typename?: 'Mutation', UpdateFilter: { __typename?: 'SystemFilter', Id: string, RuleName: string, OrderNo: number, Ip: string, DeviceId?: string | null, SubnetId?: string | null, FilterAction: string, DetectedOn: any, UpdatedOn?: any | null, UpdatedBy?: string | null } };
+export type UpdateFilterMutation = { __typename?: 'Mutation', UpdateFilter: { __typename?: 'SystemFilter', Id: string, RuleName?: string | null, OrderNo: number, Ip: string, DeviceId?: string | null, SubnetId?: string | null, FilterAction: string, DetectedOn: any, UpdatedOn?: any | null, UpdatedBy?: string | null } };
 
 export type DeleteFilterMutationVariables = Exact<{
-  filterId: Scalars['String']['input'];
+  filterIds: Array<Scalars['String']['input']> | Scalars['String']['input'];
 }>;
 
 
-export type DeleteFilterMutation = { __typename?: 'Mutation', DeleteFilter: { __typename?: 'SystemFilter', Id: string } };
+export type DeleteFilterMutation = { __typename?: 'Mutation', DeleteFilter: number };
 
 
 export const GetLoginKeyDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"GetLoginKey"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"username"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"GetLoginKey"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"Username"},"value":{"kind":"Variable","name":{"kind":"Name","value":"username"}}}]}]}}]} as unknown as DocumentNode<GetLoginKeyMutation, GetLoginKeyMutationVariables>;
@@ -366,4 +366,4 @@ export const ValidateAuthDocument = {"kind":"Document","definitions":[{"kind":"O
 export const CurrentSourceFiltersDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"CurrentSourceFilters"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"CurrentSourceFilters"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"Id"}},{"kind":"Field","name":{"kind":"Name","value":"RuleName"}},{"kind":"Field","name":{"kind":"Name","value":"OrderNo"}},{"kind":"Field","name":{"kind":"Name","value":"Ip"}},{"kind":"Field","name":{"kind":"Name","value":"DeviceId"}},{"kind":"Field","name":{"kind":"Name","value":"SubnetId"}},{"kind":"Field","name":{"kind":"Name","value":"FilterAction"}},{"kind":"Field","name":{"kind":"Name","value":"DetectedOn"}},{"kind":"Field","name":{"kind":"Name","value":"UpdatedOn"}},{"kind":"Field","name":{"kind":"Name","value":"UpdatedBy"}}]}}]}}]} as unknown as DocumentNode<CurrentSourceFiltersQuery, CurrentSourceFiltersQueryVariables>;
 export const PendingSourceFiltersDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"PendingSourceFilters"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"PendingSourceFilters"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"Id"}},{"kind":"Field","name":{"kind":"Name","value":"RuleName"}},{"kind":"Field","name":{"kind":"Name","value":"OrderNo"}},{"kind":"Field","name":{"kind":"Name","value":"Ip"}},{"kind":"Field","name":{"kind":"Name","value":"DeviceId"}},{"kind":"Field","name":{"kind":"Name","value":"SubnetId"}},{"kind":"Field","name":{"kind":"Name","value":"DetectedOn"}}]}}]}}]} as unknown as DocumentNode<PendingSourceFiltersQuery, PendingSourceFiltersQueryVariables>;
 export const UpdateFilterDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateFilter"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"filter"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"SystemFilterInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"UpdateFilter"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filter"},"value":{"kind":"Variable","name":{"kind":"Name","value":"filter"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"Id"}},{"kind":"Field","name":{"kind":"Name","value":"RuleName"}},{"kind":"Field","name":{"kind":"Name","value":"OrderNo"}},{"kind":"Field","name":{"kind":"Name","value":"Ip"}},{"kind":"Field","name":{"kind":"Name","value":"DeviceId"}},{"kind":"Field","name":{"kind":"Name","value":"SubnetId"}},{"kind":"Field","name":{"kind":"Name","value":"FilterAction"}},{"kind":"Field","name":{"kind":"Name","value":"DetectedOn"}},{"kind":"Field","name":{"kind":"Name","value":"UpdatedOn"}},{"kind":"Field","name":{"kind":"Name","value":"UpdatedBy"}}]}}]}}]} as unknown as DocumentNode<UpdateFilterMutation, UpdateFilterMutationVariables>;
-export const DeleteFilterDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"DeleteFilter"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"filterId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"DeleteFilter"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filterId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"filterId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"Id"}}]}}]}}]} as unknown as DocumentNode<DeleteFilterMutation, DeleteFilterMutationVariables>;
+export const DeleteFilterDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"DeleteFilter"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"filterIds"}},"type":{"kind":"NonNullType","type":{"kind":"ListType","type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"DeleteFilter"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"filterIds"},"value":{"kind":"Variable","name":{"kind":"Name","value":"filterIds"}}}]}]}}]} as unknown as DocumentNode<DeleteFilterMutation, DeleteFilterMutationVariables>;
