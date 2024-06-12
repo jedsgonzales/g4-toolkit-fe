@@ -1,5 +1,6 @@
-import { useSnackbar } from "notistack";
-import { useEffect, useMemo, useState } from "react";
+import { useLazyQuery, useMutation } from "@apollo/client";
+import { Delete, Edit } from "@mui/icons-material";
+import CloseIcon from "@mui/icons-material/Close";
 import {
   Box,
   Button,
@@ -24,13 +25,9 @@ import {
   Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import CloseIcon from "@mui/icons-material/Close";
-import Page from "src/components/Page";
-import Scrollbar from "src/components/Scrollbar";
-import SearchNotFound from "src/components/SearchNotFound";
-import { useLazyQuery, useMutation } from "@apollo/client";
-import { Delete, Edit } from "@mui/icons-material";
 import { format } from "date-fns";
+import { useSnackbar } from "notistack";
+import { useEffect, useMemo, useState } from "react";
 import {
   DEL_SOURCE_FILTER,
   GET_EXISTING_FILTERS,
@@ -49,8 +46,11 @@ import {
   UpdateFilterMutation,
   UpdateFilterMutationVariables,
 } from "src/client/types/graphql";
-import { collectionFilter } from "src/utils/filterObjects";
+import Page from "src/components/Page";
+import Scrollbar from "src/components/Scrollbar";
+import SearchNotFound from "src/components/SearchNotFound";
 import SystemFilterForm from "src/components/SystemFilterForm";
+import { collectionFilter } from "src/utils/filterObjects";
 
 // ----------------------------------------------------------------------
 const CurrentFilterCols = [
@@ -129,10 +129,32 @@ export default function SystemFilterList() {
     deletingFilter,
   } = useSystemFilterRecords();
 
+  /** update filters for records as per table states */
   useEffect(() => {
     setSystemTextFilter(tableStates.current.filter);
     setPendingTextFilter(tableStates.pending.filter);
   }, [tableStates.current.filter, tableStates.pending.filter]);
+
+  /** update selected rows when records updated */
+  useEffect(() => {
+    setTableStates((prev) => {
+      return {
+        ...prev,
+        current: {
+          ...prev.current,
+          selected: prev.current.selected.filter((s) =>
+            currentFilters.find((cf) => cf.Id === s)
+          ),
+        },
+        pending: {
+          ...prev.pending,
+          selected: prev.pending.selected.filter((s) =>
+            pendingFilters.find((cf) => cf.Id === s)
+          ),
+        },
+      };
+    });
+  }, [currentFilters, pendingFilters]);
 
   const handleCurrentChangePage = (
     _event: React.MouseEvent<HTMLButtonElement> | null,
@@ -343,14 +365,22 @@ export default function SystemFilterList() {
                           role="checkbox"
                           selected={itemIsSelected}
                           aria-checked={itemIsSelected}
-                          // onClick={() => handleOpenForm(id)}
+                          onClick={() =>
+                            itemIsSelected
+                              ? deSelect(row.Id, "current")
+                              : setSelected(row.Id, "current")
+                          }
                         >
                           <TableCell align="left">
                             <Checkbox checked={itemIsSelected} />
                             <IconButton
                               aria-label="edit"
                               disabled={savingFilter || deletingFilter}
-                              onClick={(_evt) => setOpenFilter({ ...row })}
+                              onClick={(evt) => {
+                                evt.stopPropagation();
+                                evt.preventDefault();
+                                setOpenFilter({ ...row });
+                              }}
                             >
                               <Edit />
                             </IconButton>
@@ -557,7 +587,14 @@ export default function SystemFilterList() {
                             <IconButton
                               aria-label="edit"
                               disabled={savingFilter || deletingFilter}
-                              onClick={(_evt) => setOpenFilter({ ...row, FilterAction: 'pending' })}
+                              onClick={(evt) => {
+                                evt.stopPropagation();
+                                evt.preventDefault();
+                                setOpenFilter({
+                                  ...row,
+                                  FilterAction: "pending",
+                                });
+                              }}
                             >
                               <Edit />
                             </IconButton>

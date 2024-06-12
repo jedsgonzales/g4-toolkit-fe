@@ -1,21 +1,18 @@
-import {
-  Modal,
-  Box,
-  Typography,
-  TextField,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-  Button,
-  Stack,
-} from "@mui/material";
-import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { SystemFilter, SystemFilterInput } from "src/client/types/graphql";
-import { object, string, number, date, InferType } from "yup";
+import {
+  Box,
+  Button,
+  MenuItem,
+  Modal,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material";
 import Grid from "@mui/material/Unstable_Grid2";
 import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { SystemFilter, SystemFilterInput } from "src/client/types/graphql";
+import { number, object, string } from "yup";
 
 interface Props {
   data: SystemFilter;
@@ -57,13 +54,22 @@ const formSchema = object().shape({
       message: "Must a number between 1 to 255 or use * for wildcard.",
     })
     .required(),
-  FilterAction: string()
-    .oneOf(["allow", "block", "ignore"])
-    .required(),
+  FilterAction: string().oneOf(["allow", "block", "ignore"]).required(),
 });
 
-const SystemFilterForm = ({ data, saveFunction, isOpen, onClose, savingState }: Props) => {
-  const { register, handleSubmit, reset, formState: { errors } } = useForm({
+const SystemFilterForm = ({
+  data,
+  saveFunction,
+  isOpen,
+  onClose,
+  savingState,
+}: Props) => {
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm({
     resolver: yupResolver(formSchema),
     defaultValues: {
       OrderNo: 1,
@@ -76,7 +82,7 @@ const SystemFilterForm = ({ data, saveFunction, isOpen, onClose, savingState }: 
   });
 
   const onSubmit = (input: SystemFilterInput) => {
-    if(savingState) return;
+    if (savingState) return;
     saveFunction(input).then(() => onClose());
   };
 
@@ -90,7 +96,7 @@ const SystemFilterForm = ({ data, saveFunction, isOpen, onClose, savingState }: 
         Ip: data.Ip,
         SubnetId: data.SubnetId || "*",
         DeviceId: data.DeviceId || "*",
-        FilterAction: data.FilterAction || "ignore",
+        FilterAction: data.FilterAction || "",
       });
     }
   }, [data, reset]);
@@ -121,7 +127,7 @@ const SystemFilterForm = ({ data, saveFunction, isOpen, onClose, savingState }: 
                   variant="outlined"
                   {...register("RuleName")}
                   error={!!errors.RuleName}
-                  helperText={!!errors.RuleName ? errors.RuleName.message : ''}
+                  helperText={!!errors.RuleName ? errors.RuleName.message : ""}
                 />
               </Grid>
               <Grid xs={12}>
@@ -134,7 +140,7 @@ const SystemFilterForm = ({ data, saveFunction, isOpen, onClose, savingState }: 
                   variant="outlined"
                   {...register("OrderNo")}
                   error={!!errors.OrderNo}
-                  helperText={!!errors.OrderNo ? errors.OrderNo.message : ''}
+                  helperText={!!errors.OrderNo ? errors.OrderNo.message : ""}
                 />
               </Grid>
               <Grid xs={12}>
@@ -146,33 +152,31 @@ const SystemFilterForm = ({ data, saveFunction, isOpen, onClose, savingState }: 
                   variant="outlined"
                   {...register("Ip")}
                   error={!!errors.Ip}
-                  helperText={!!errors.Ip ? errors.Ip.message : ''}
+                  helperText={!!errors.Ip ? errors.Ip.message : ""}
                 />
               </Grid>
               <Grid xs={12}>
                 <TextField
                   fullWidth
                   disabled={savingState}
-                  type="number"
                   id="subnet-id"
                   label="Subnet ID"
                   variant="outlined"
                   {...register("SubnetId")}
                   error={!!errors.SubnetId}
-                  helperText={!!errors.SubnetId ? errors.SubnetId.message : ''}
+                  helperText={!!errors.SubnetId ? errors.SubnetId.message : ""}
                 />
               </Grid>
               <Grid xs={12}>
                 <TextField
                   fullWidth
                   disabled={savingState}
-                  type="number"
                   id="device-id"
                   label="Device ID"
                   variant="outlined"
                   {...register("DeviceId")}
                   error={!!errors.DeviceId}
-                  helperText={!!errors.DeviceId ? errors.DeviceId.message : ''}
+                  helperText={!!errors.DeviceId ? errors.DeviceId.message : ""}
                 />
               </Grid>
               <Grid xs={12}>
@@ -184,13 +188,16 @@ const SystemFilterForm = ({ data, saveFunction, isOpen, onClose, savingState }: 
                   id="filter-action"
                   label="Filter Action"
                   variant="outlined"
+                  defaultValue={data.FilterAction}
                   {...register("FilterAction")}
                   error={!!errors.FilterAction}
-                  helperText={!!errors.FilterAction ? errors.FilterAction.message : ''}
+                  helperText={
+                    !!errors.FilterAction ? errors.FilterAction.message : ""
+                  }
                 >
-                    <MenuItem value="allow">Allow</MenuItem>
-                    <MenuItem value="ignore">Ignore</MenuItem>
-                    <MenuItem value="block">Block</MenuItem>
+                  <MenuItem value="allow">Allow</MenuItem>
+                  <MenuItem value="ignore">Ignore</MenuItem>
+                  <MenuItem value="block">Block</MenuItem>
                 </TextField>
               </Grid>
               <Grid
@@ -199,7 +206,11 @@ const SystemFilterForm = ({ data, saveFunction, isOpen, onClose, savingState }: 
                 alignItems="center"
                 textAlign="center"
               >
-                <Button variant="outlined" disabled={savingState} onClick={(_evt) => onClose()}>
+                <Button
+                  variant="outlined"
+                  disabled={savingState}
+                  onClick={(_evt) => onClose()}
+                >
                   Cancel
                 </Button>
               </Grid>
@@ -209,7 +220,11 @@ const SystemFilterForm = ({ data, saveFunction, isOpen, onClose, savingState }: 
                 alignItems="center"
                 textAlign="center"
               >
-                <Button variant="contained" disabled={savingState} type="submit">
+                <Button
+                  variant="contained"
+                  disabled={savingState}
+                  type="submit"
+                >
                   Submit
                 </Button>
               </Grid>
