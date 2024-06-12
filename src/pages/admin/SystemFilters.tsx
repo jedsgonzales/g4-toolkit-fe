@@ -1,49 +1,36 @@
-import { useState, useMemo, useEffect } from "react";
 import { useSnackbar } from "notistack";
-// material
-import { styled } from "@mui/material/styles";
+import { useEffect, useMemo, useState } from "react";
 import {
-  Paper,
   Box,
-  Card,
-  Table,
-  Stack,
-  TableRow,
-  TableBody,
-  TableCell,
-  Typography,
-  TableContainer,
-  TablePagination,
-  IconButton,
   Button,
-  TableHead,
-  TableCellProps,
+  Card,
   Checkbox,
   Dialog,
-  DialogTitle,
+  DialogActions,
   DialogContent,
   DialogContentText,
-  DialogActions,
+  DialogTitle,
+  IconButton,
+  Paper,
+  Stack,
+  Table,
+  TableBody,
+  TableCell,
+  TableCellProps,
+  TableContainer,
+  TableHead,
+  TablePagination,
+  TableRow,
+  Typography,
 } from "@mui/material";
-// icons
+import { styled } from "@mui/material/styles";
 import CloseIcon from "@mui/icons-material/Close";
-// hooks
-//import useSettings from '@/hooks/useSettings'
-// components
 import Page from "src/components/Page";
-import SearchNotFound from "src/components/SearchNotFound";
 import Scrollbar from "src/components/Scrollbar";
-import CopyToClipboard from "src/components/CopyToClipboard";
-import { ListHead, ListToolbar } from "src/components/table";
-import UsersCreate from "src/components/modals/UsersCreate";
-// redux
-import { useSelector, useDispatch } from "react-redux";
-//import { usersList, usersRead } from 'src/redux/usersSlice'
-// utils
-//import numeral from 'numeral'
-import { format } from "date-fns";
-import { SmartG4Dispatch, SmartG4RootState } from "src/redux/store";
+import SearchNotFound from "src/components/SearchNotFound";
 import { useLazyQuery, useMutation } from "@apollo/client";
+import { Delete, Edit } from "@mui/icons-material";
+import { format } from "date-fns";
 import {
   DEL_SOURCE_FILTER,
   GET_EXISTING_FILTERS,
@@ -57,11 +44,13 @@ import {
   DeleteFilterMutationVariables,
   PendingSourceFiltersQuery,
   PendingSourceFiltersQueryVariables,
+  SystemFilter,
+  SystemFilterInput,
   UpdateFilterMutation,
   UpdateFilterMutationVariables,
 } from "src/client/types/graphql";
 import { collectionFilter } from "src/utils/filterObjects";
-import { Delete, Edit } from "@mui/icons-material";
+import SystemFilterForm from "src/components/SystemFilterForm";
 
 // ----------------------------------------------------------------------
 const CurrentFilterCols = [
@@ -126,6 +115,7 @@ export default function SystemFilterList() {
   });
 
   const [deleteSelection, setDeleteSelection] = useState<keyof TableStates>();
+  const [openFilter, setOpenFilter] = useState<SystemFilter>();
 
   const {
     currentFilters,
@@ -239,7 +229,6 @@ export default function SystemFilterList() {
           },
         };
       });
-
     });
   };
 
@@ -361,6 +350,7 @@ export default function SystemFilterList() {
                             <IconButton
                               aria-label="edit"
                               disabled={savingFilter || deletingFilter}
+                              onClick={(_evt) => setOpenFilter({ ...row })}
                             >
                               <Edit />
                             </IconButton>
@@ -567,6 +557,7 @@ export default function SystemFilterList() {
                             <IconButton
                               aria-label="edit"
                               disabled={savingFilter || deletingFilter}
+                              onClick={(_evt) => setOpenFilter({ ...row, FilterAction: 'pending' })}
                             >
                               <Edit />
                             </IconButton>
@@ -637,6 +628,17 @@ export default function SystemFilterList() {
           </Button>
         </DialogActions>
       </Dialog>
+      {openFilter && (
+        <SystemFilterForm
+          data={openFilter}
+          saveFunction={saveFilter}
+          isOpen={!!openFilter}
+          onClose={() => {
+            setOpenFilter(undefined);
+          }}
+          savingState={savingFilter}
+        />
+      )}
     </Page>
   );
 }
@@ -810,7 +812,7 @@ const useSystemFilterRecords = () => {
     });
   };
 
-  const saveFilter = async (input: UpdateFilterMutationVariables["filter"]) => {
+  const saveFilter = async (input: SystemFilterInput) => {
     return await saveSystemFilter({
       variables: {
         filter: input,
