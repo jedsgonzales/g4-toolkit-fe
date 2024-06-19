@@ -19,8 +19,6 @@ const authLink = setContext((_, { headers }) => {
   // get the authentication token from local storage if it exists
   const auth: AuthState["data"] = loadStorageObject("auth");
 
-  console.log("apollo auth link", auth?.token);
-
   // return the headers to the context so httpLink can read them
   return {
     headers: {
