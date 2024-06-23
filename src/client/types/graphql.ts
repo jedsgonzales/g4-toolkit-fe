@@ -31,6 +31,7 @@ export type Area = {
   ParentArea?: Maybe<AreaBase>;
   ParentAreaId?: Maybe<Scalars['Int']['output']>;
   SubAreas: Array<AreaBase>;
+  Type: Scalars['String']['output'];
   UpdatedBy?: Maybe<Scalars['String']['output']>;
   UpdatedOn?: Maybe<Scalars['DateTime']['output']>;
 };
@@ -43,6 +44,7 @@ export type AreaBase = {
   Id: Scalars['ID']['output'];
   Name: Scalars['String']['output'];
   ParentAreaId?: Maybe<Scalars['Int']['output']>;
+  Type: Scalars['String']['output'];
   UpdatedBy?: Maybe<Scalars['String']['output']>;
   UpdatedOn?: Maybe<Scalars['DateTime']['output']>;
 };
@@ -108,13 +110,29 @@ export type DeviceIdentityInput = {
   SubnetId?: InputMaybe<Scalars['Int']['input']>;
 };
 
+export type LevelAreaInput = {
+  Details?: InputMaybe<Scalars['String']['input']>;
+  Id?: InputMaybe<Scalars['ID']['input']>;
+  Name: Scalars['String']['input'];
+  ParentAreaId: Scalars['Int']['input'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
+  DeleteArea: Scalars['Int']['output'];
   DeleteFilter: Scalars['Int']['output'];
   GetLoginKey: Scalars['String']['output'];
+  SaveProperty: Area;
+  SavePropertyLevel: Area;
+  SavePropertyUnit: Area;
   SignIn: AuthResult;
   UpdateDeviceFilter: Scalars['Boolean']['output'];
   UpdateFilter: SystemFilter;
+};
+
+
+export type MutationDeleteAreaArgs = {
+  AreaIdList: Array<Scalars['Int']['input']>;
 };
 
 
@@ -125,6 +143,21 @@ export type MutationDeleteFilterArgs = {
 
 export type MutationGetLoginKeyArgs = {
   Username: Scalars['String']['input'];
+};
+
+
+export type MutationSavePropertyArgs = {
+  Property: PropertyAreaInput;
+};
+
+
+export type MutationSavePropertyLevelArgs = {
+  Level: LevelAreaInput;
+};
+
+
+export type MutationSavePropertyUnitArgs = {
+  Unit: UnitAreaInput;
 };
 
 
@@ -207,12 +240,19 @@ export type NetworkDeviceBase = {
   SubnetId: Scalars['Int']['output'];
 };
 
+export type PropertyAreaInput = {
+  Details?: InputMaybe<Scalars['String']['input']>;
+  Id?: InputMaybe<Scalars['ID']['input']>;
+  Name: Scalars['String']['input'];
+};
+
 export type Query = {
   __typename?: 'Query';
   ActiveDevices: Array<NetworkDevice>;
   AllDeviceFilters: Array<NetworkDevice>;
   AllDevices: Array<NetworkDevice>;
   AllSourceFilters: Array<SystemFilter>;
+  AllUsers: Array<UserWithRoles>;
   AnnounceAreaOccupancy: Area;
   AnnounceNewBroadcaster: NetworkBroadcasterBase;
   AnnounceNewDevice: NetworkBroadcasterBase;
@@ -222,7 +262,10 @@ export type Query = {
   DeviceById: NetworkDevice;
   DeviceByParams: NetworkDevice;
   DisabledDevices: Array<NetworkDevice>;
+  LevelUnits: Array<Area>;
   PendingSourceFilters: Array<SystemFilter>;
+  Properties: Array<Area>;
+  PropertyLevels: Array<Area>;
   ValidateAuth?: Maybe<UserWithRoles>;
 };
 
@@ -263,6 +306,16 @@ export type QueryDeviceByParamsArgs = {
   identity: DeviceIdentityInput;
 };
 
+
+export type QueryLevelUnitsArgs = {
+  LevelId: Scalars['Int']['input'];
+};
+
+
+export type QueryPropertyLevelsArgs = {
+  PropertyId: Scalars['Int']['input'];
+};
+
 export type Subscription = {
   __typename?: 'Subscription';
   AreaOccupancyStateChanged: Area;
@@ -294,6 +347,13 @@ export type SystemFilterInput = {
   OrderNo: Scalars['Int']['input'];
   RuleName: Scalars['String']['input'];
   SubnetId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type UnitAreaInput = {
+  Details?: InputMaybe<Scalars['String']['input']>;
+  Id?: InputMaybe<Scalars['ID']['input']>;
+  Name: Scalars['String']['input'];
+  ParentAreaId: Scalars['Int']['input'];
 };
 
 export type UserRole = {

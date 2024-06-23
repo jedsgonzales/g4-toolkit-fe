@@ -1,4 +1,11 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
+import { PayloadAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { DateTime } from "luxon";
+import { apolloClient } from "src/client/apollo";
+import {
+  GET_ALL_DEVICES,
+} from "src/client/models/devices";
+
+//import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 
 const BACKEND_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000/api/v1'
 
@@ -16,7 +23,7 @@ interface DevicesState {
   //totalItems: number
   data: {
     items: Array<DeviceType>
-    totalItems: Number
+    totalItems: number
   }
   loading: boolean
   error: string | null
@@ -39,6 +46,7 @@ const initialState: DevicesState = {
   error: null,
 }
 
+/*
 export const devicesList = createAsyncThunk(
   'devices/list',
   async (payload: any, thunkAPI) => {
@@ -63,6 +71,35 @@ export const devicesList = createAsyncThunk(
     }
   }
 )
+*/
+export const devicesList = createAsyncThunk(
+  "devices/list",
+  async (payload: any, thunkAPI) => {
+    return await apolloClient
+      .query({
+        query: GET_ALL_DEVICES,
+        fetchPolicy: "network-only",
+      })
+      .then((resp) => {
+        if (resp.errors) {
+          return thunkAPI.rejectWithValue(resp.errors);
+        } else {
+          if (resp.data) {
+            return thunkAPI.fulfillWithValue({
+              ...resp.data,
+            });
+          } else {
+            return thunkAPI.rejectWithValue("Session Expired");
+          }
+        }
+      })
+      .catch((err) => {
+        console.log('error', err);
+        return thunkAPI.rejectWithValue(err.message);
+      });
+  }
+);
+
 
 export const devicesCreate = createAsyncThunk(
   'devices/create',
@@ -212,7 +249,10 @@ export const devicesSlice = createSlice({
     builder
       .addCase(devicesList.fulfilled, (state, { payload }) => {
         state.loading = false
-        state.data = payload
+        state.data = {
+          items: payload.AllDevices,
+          totalItems: payload.AllDevices.length
+        }
       })
       .addCase(devicesList.pending, (state) => {
         state.loading = true

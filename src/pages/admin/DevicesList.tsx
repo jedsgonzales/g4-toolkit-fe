@@ -29,12 +29,13 @@ import CopyToClipboard from 'src/components/CopyToClipboard'
 import { ListHead, ListToolbar } from 'src/components/table'
 import DevicesCreate from 'src/components/modals/DevicesCreate'
 // redux
-import { ThunkDispatch } from '@reduxjs/toolkit'
+import { SmartG4Dispatch, SmartG4RootState } from "src/redux/store";
 import { useSelector, useDispatch } from 'react-redux'
-//import { devicesList, devicesRead } from 'src/redux/devicesSlice'
+import { devicesList, devicesRead } from 'src/redux/devicesSlice'
 // utils
 //import numeral from 'numeral'
 import { format } from 'date-fns'
+import { DateTime } from "luxon";
 //import { applySortFilter, getComparator } from '@/utils/filterObjects'
 
 // ----------------------------------------------------------------------
@@ -52,10 +53,11 @@ const TablePaginationStyle = styled(TablePagination)({
 export default function DevicesList() {
   //const { themeStretch } = useSettings()
   //const theme = useTheme()
-  const dispatch = useDispatch<ThunkDispatch<any, any, any>>()
+  const dispatch = useDispatch<SmartG4Dispatch>()
   const { enqueueSnackbar, closeSnackbar } = useSnackbar()
 
-  const devices = useSelector((state: any) => state.devices)
+  const devices = useSelector((state: SmartG4RootState) => state.devices);
+  const auth = useSelector((state: SmartG4RootState) => state.auth);
 
   const [loading, setLoading] = useState(false)
 
@@ -84,7 +86,7 @@ export default function DevicesList() {
 
   const handleOpenForm = (id: any) => {
     if (id) {
-      setSelectedItem(devices.data.items.find((obj: any) => obj.id === id))
+      setSelectedItem(devices.data.items.find((obj: any) => obj.id === id) || {})
     }
     else {
       setSelectedItem({})
@@ -105,8 +107,16 @@ export default function DevicesList() {
     (async () => {
       try {
         setLoading(true)
-        console.log('fetch devices')
         //await dispatch(devicesList({ limit, page, orderBy, order, findBy: filterBy, find: filter }))
+        const timeFrame = DateTime.local()
+          .startOf("hour")
+          .toFormat("yyyyMMddHHmmss");
+        if (auth.data?.token) {
+          //if (auth.data?.validationMark !== timeFrame) {
+          console.log('fetch devices')
+          await dispatch(devicesList({}))
+          //}
+        }
         setLoading(false)
       }
       catch (error: any) {
@@ -121,7 +131,7 @@ export default function DevicesList() {
         setLoading(false)
       }
     })()
-  }, [page, limit, orderBy, order, filterBy, filter])
+  }, [dispatch, auth.data?.roles])
 
   useMemo(() => {
     (async () => {
