@@ -45,6 +45,7 @@ export type AreaBase = {
   Name: Scalars['String']['output'];
   ParentAreaId?: Maybe<Scalars['ID']['output']>;
   Type: Scalars['String']['output'];
+  Type: Scalars['String']['output'];
   UpdatedBy?: Maybe<Scalars['String']['output']>;
   UpdatedOn?: Maybe<Scalars['DateTime']['output']>;
 };
