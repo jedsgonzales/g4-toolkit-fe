@@ -35,7 +35,7 @@ const SearchStyle = styled(OutlinedInput)(() => ({
 interface Props {
   filter: String
   onFilter: React.ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement>
-  filterBy: String
+  filterBy?: String
   addText?: String
   handleAdd?: Function
 }

@@ -127,7 +127,7 @@ export default function SystemFilterList() {
     savingFilter,
     deleteFilter,
     deletingFilter,
-  } = useSystemFilterRecords();
+  } = useSystemFilterAPI();
 
   /** update filters for records as per table states */
   useEffect(() => {
@@ -680,7 +680,7 @@ export default function SystemFilterList() {
   );
 }
 
-const useSystemFilterRecords = () => {
+const useSystemFilterAPI = () => {
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const [systemTextFilter, setSystemTextFilter] = useState("");
   const [pendingTextFilter, setPendingTextFilter] = useState("");
