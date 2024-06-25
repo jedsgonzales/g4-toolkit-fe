@@ -16,6 +16,7 @@ const documents = {
     "\n  mutation GetLoginKey($username: String!) {\n    GetLoginKey(Username: $username)\n  }\n": types.GetLoginKeyDocument,
     "\n  mutation SignIn($username: String!, $key: String!) {\n    SignIn(Username: $username, Key: $key) {\n      AccessToken\n      User {\n        Id\n        Username\n        FirstName\n        LastName\n        Email\n        CreatedOn\n        Roles {\n          RoleName\n          Id\n        }\n      }\n    }\n  }\n": types.SignInDocument,
     "\n  query ValidateAuth {\n    ValidateAuth {\n      Id\n      Username\n      FirstName\n      LastName\n      Email\n      CreatedOn\n      Roles {\n        Id\n        RoleName\n      }\n    }\n  }\n": types.ValidateAuthDocument,
+    "\n  query AllDevices {\n    AllDevices {\n      Id\n      Enabled\n      DeviceType\n      DeviceId\n      AreaId\n      SubnetId\n    }\n  }\n": types.AllDevicesDocument,
     "\n  query Properties {\n    Properties {\n      Id\n      Name\n      Type\n      Details\n      ParentAreaId\n      CreatedOn\n      CreatedBy\n      UpdatedOn\n      UpdatedBy\n      SubAreas {\n        Id\n        Name\n        Type\n        Details\n        ParentAreaId\n        CreatedOn\n        CreatedBy\n        UpdatedOn\n        UpdatedBy\n      }\n    }\n  }\n": types.PropertiesDocument,
     "\n  query PropertyLevels($propertyId: Int!) {\n    PropertyLevels(PropertyId: $propertyId) {\n      Id\n      Name\n      Type\n      Details\n      ParentAreaId\n      CreatedOn\n      CreatedBy\n      UpdatedOn\n      UpdatedBy\n      ParentArea {\n        Id\n        Name\n        Type\n        Details\n        ParentAreaId\n        CreatedOn\n        CreatedBy\n        UpdatedOn\n        UpdatedBy\n      }\n      SubAreas {\n        Id\n        Name\n        Type\n        Details\n        ParentAreaId\n        CreatedOn\n        CreatedBy\n        UpdatedOn\n        UpdatedBy\n      }\n    }\n  }\n": types.PropertyLevelsDocument,
     "\n  query LevelUnits($levelId: Int!) {\n    LevelUnits(LevelId: $levelId) {\n      Id\n      Name\n      Type\n      Details\n      ParentAreaId\n      CreatedOn\n      CreatedBy\n      UpdatedOn\n      UpdatedBy\n      ParentArea {\n        Id\n        Name\n        Type\n        Details\n        ParentAreaId\n        CreatedOn\n        CreatedBy\n        UpdatedOn\n        UpdatedBy\n      }\n    }\n  }\n": types.LevelUnitsDocument,
@@ -55,6 +56,10 @@ export function gql(source: "\n  mutation SignIn($username: String!, $key: Strin
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  query ValidateAuth {\n    ValidateAuth {\n      Id\n      Username\n      FirstName\n      LastName\n      Email\n      CreatedOn\n      Roles {\n        Id\n        RoleName\n      }\n    }\n  }\n"): (typeof documents)["\n  query ValidateAuth {\n    ValidateAuth {\n      Id\n      Username\n      FirstName\n      LastName\n      Email\n      CreatedOn\n      Roles {\n        Id\n        RoleName\n      }\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query AllDevices {\n    AllDevices {\n      Id\n      Enabled\n      DeviceType\n      DeviceId\n      AreaId\n      SubnetId\n    }\n  }\n"): (typeof documents)["\n  query AllDevices {\n    AllDevices {\n      Id\n      Enabled\n      DeviceType\n      DeviceId\n      AreaId\n      SubnetId\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

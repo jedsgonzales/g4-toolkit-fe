@@ -1,5 +1,4 @@
-import { PayloadAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { DateTime } from "luxon";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { apolloClient } from "src/client/apollo";
 import {
   GET_ALL_DEVICES,
@@ -29,18 +28,10 @@ interface DevicesState {
   error: string | null
 }
 
-const TestData = [
-  { id: '1', date: '2024-01-01', name: 'Relay', deviceId: '0001', deviceType: 'relay', description: 'This is a relay', value: 0, min: 0, max: 1, unit: '' },
-  { id: '2', date: '2024-01-01', name: 'Switch', deviceId: '0002', deviceType: 'switch', description: 'This is a switch', value: 1, min: 0, max: 1, unit: '' },
-  { id: '3', date: '2024-01-01', name: 'Dimmer', deviceId: '0003', deviceType: 'dimmer', description: 'This is a dimmer', value: 73, min: 0, max: 100, unit: '%' },
-  { id: '4', date: '2024-01-01', name: 'Motion', deviceId: '0004', deviceType: 'motion', description: 'This is a motion sensor', value: 0, min: 0, max: 1, unit: '' },
-  { id: '5', date: '2024-01-01', name: 'Energy', deviceId: '0005', deviceType: 'energy', description: 'This is an energy sensor', value: 0.5, min: 0, max: 100, unit: 'kw' },
-]
-
 const initialState: DevicesState = {
   data: {
-    items: TestData,
-    totalItems: TestData.length
+    items: [],
+    totalItems: 0
   },
   loading: false,
   error: null,

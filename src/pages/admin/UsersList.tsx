@@ -29,21 +29,20 @@ import CopyToClipboard from 'src/components/CopyToClipboard'
 import { ListHead, ListToolbar } from 'src/components/table'
 import UsersCreate from 'src/components/modals/UsersCreate'
 // redux
-import { ThunkDispatch } from '@reduxjs/toolkit'
-import { useSelector, useDispatch } from 'react-redux'
-//import { usersList, usersRead } from 'src/redux/usersSlice'
+import { SmartG4Dispatch, SmartG4RootState } from "src/redux/store";
+import { useSelector, useDispatch } from 'react-redux';
+import { usersList, usersRead } from 'src/redux/usersSlice';
 // utils
 //import numeral from 'numeral'
-import { format } from 'date-fns'
-import { SmartG4RootState } from 'src/redux/store'
+//import { format } from 'date-fns'
 //import { applySortFilter, getComparator } from '@/utils/filterObjects'
 
 // ----------------------------------------------------------------------
 const TABLE_HEAD = [
-  { id: 'date', label: 'Date', alignRight: false, sort: true },
-  { id: 'name', label: 'Fullname', alignRight: false, sort: false },
-  { id: 'email', label: 'Email', alignRight: false, sort: true },
-  { id: 'roles', label: 'Roles', alignRight: false },
+  { id: 'createdOn', label: 'date', alignRight: false, sort: true },
+  { id: 'LastName', label: 'fullname', alignRight: false, sort: false },
+  { id: 'Username', label: 'username', alignRight: false, sort: true },
+  { id: 'Roles', label: 'roles', alignRight: false },
 ]
 // ----------------------------------------------------------------------
 const TablePaginationStyle = styled(TablePagination)({
@@ -58,7 +57,7 @@ const TablePaginationStyle = styled(TablePagination)({
 export default function UsersList() {
   //const { themeStretch } = useSettings()
   //const theme = useTheme()
-  const dispatch = useDispatch<ThunkDispatch<any, any, any>>()
+  const dispatch = useDispatch<SmartG4Dispatch>()
   const { enqueueSnackbar, closeSnackbar } = useSnackbar()
 
   const users = useSelector((state: SmartG4RootState) => state.users)
@@ -114,6 +113,7 @@ export default function UsersList() {
         setLoading(true)
         console.log('fetch users')
         //await dispatch(usersList({ limit, page, orderBy, order, findBy: filterBy, find: filter }))
+        await dispatch(usersList({}))
         setLoading(false)
       }
       catch (error: any) {
@@ -128,32 +128,9 @@ export default function UsersList() {
         setLoading(false)
       }
     })()
-  }, [page, limit, orderBy, order, filterBy, filter])
+  }, [dispatch])
 
-  useMemo(() => {
-    (async () => {
-      try {
-        //setLoading(true)
-        if (!stats) {
-          //const response = await dispatch(usersRead({ id: 'stats' }))
-          //setStats(response.payload)
-          //console.log(response.payload)
-        }
-        //setLoading(false)
-      }
-      catch (error: any) {
-        enqueueSnackbar(error.message, {
-          variant: 'error',
-          action: (key) => (
-            <IconButton size="small" onClick={() => closeSnackbar(key)}>
-              <CloseIcon />
-            </IconButton>
-          )
-        })
-        //setLoading(false)
-      }
-    })()
-  }, [])
+  //console.log(users)
 
   return (
     <Page title={'Backoffice - Users'} >
@@ -218,7 +195,9 @@ export default function UsersList() {
                       </TableRow>
                     )}
                     {users.data.items.map((obj: any, idx: number) => {
-                      const { id, date, firstname, lastname, email, roles } = obj
+                      const { Id, CreatedOn, Username, FirstName, LastName, Roles } = obj
+                      const roles = Roles.map((o: any) => o.RoleName)
+
 
                       return (
                         <TableRow
@@ -228,26 +207,25 @@ export default function UsersList() {
                           //role="checkbox"
                           //selected={isItemSelected}
                           //aria-checked={isItemSelected}
-                          onClick={() => handleOpenForm(id)}
+                          onClick={() => handleOpenForm(Id)}
                         >
                           <TableCell align="left">
                             <Typography variant="body2" noWrap>
-                              {/*format(new Date(date), 'yyyy-MM-dd HH:mm:ss')*/}
-                              {format(new Date(date), 'MMM. dd, yyyy hh:mm a')}
+                              {CreatedOn /* format(new Date(CreatedOn), 'yyyy-MM-dd HH:mm:ss') */}
                             </Typography>
                           </TableCell>
                           <TableCell align="left">
                             <Stack direction='row' alignItems='center' spacing={1}>
                               <Typography variant="body2" noWrap >
-                                {firstname} {lastname}
+                                {FirstName} {LastName}
                               </Typography>
                             </Stack>
                           </TableCell>
                           <TableCell align="left">
                             <Stack direction='row' alignItems='center' spacing={1}>
-                              <CopyToClipboard data={email} />
+                              <CopyToClipboard data={Username} />
                               <Typography variant="body2" noWrap >
-                                {email}
+                                {Username}
                               </Typography>
                             </Stack>
                           </TableCell>
