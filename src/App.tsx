@@ -19,8 +19,6 @@ import UsersList from './pages/admin/UsersList'
 import LocationsList from './pages/admin/LocationsList'
 import DevicesList from './pages/admin/DevicesList'
 // user pages
-import LocationsListU from './pages/user/LocationsList'
-import DevicesListU from './pages/user/DevicesList'
 import SystemFilterList from './pages/admin/SystemFilters'
 
 
@@ -47,8 +45,8 @@ const App = () => {
           </Route>
           <Route path='/user' element={<UserLayout />}>
             <Route path='' element={<Navigate to='devices' />} />
-            <Route path='devices' element={<DevicesListU />} />
-            <Route path='locations' element={<LocationsListU />} />
+            <Route path='devices' element={<DevicesList />} />
+            <Route path='locations' element={<LocationsList />} />
           </Route>
           <Route path="/" element={<PlainLayout />}>
             <Route path='' element={<Navigate to='admin' />} />

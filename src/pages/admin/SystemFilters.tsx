@@ -46,10 +46,11 @@ import {
   UpdateFilterMutation,
   UpdateFilterMutationVariables,
 } from "src/client/types/graphql";
+import { SmartG4TableState } from "src/client/types/table-state";
 import Page from "src/components/Page";
 import Scrollbar from "src/components/Scrollbar";
 import SearchNotFound from "src/components/SearchNotFound";
-import SystemFilterForm from "src/components/SystemFilterForm";
+import SystemFilterForm from "src/components/modals/SystemFilterForm";
 import { collectionFilter } from "src/utils/filterObjects";
 
 // ----------------------------------------------------------------------
@@ -83,16 +84,9 @@ const TablePaginationStyle = styled(TablePagination)({
 }) as typeof TablePagination;
 // ----------------------------------------------------------------------
 
-interface TableState {
-  filter: string;
-  page: number;
-  rowsPerPage: number;
-  selected: string[];
-}
-
 interface TableStates {
-  current: TableState;
-  pending: TableState;
+  current: SmartG4TableState<SystemFilter>;
+  pending: SmartG4TableState<SystemFilter>;
 }
 
 export default function SystemFilterList() {
@@ -105,12 +99,14 @@ export default function SystemFilterList() {
       page: 0,
       rowsPerPage: 5,
       selected: [],
+      order: "desc"
     },
     pending: {
       filter: "",
       page: 0,
       rowsPerPage: 5,
       selected: [],
+      order: "desc"
     },
   });
 

@@ -4,16 +4,16 @@
     "path": "/admin/system-filters"
   },
   {
+    "title": "locations",
+    "path": "/admin/locations"
+  },
+  {
     "title": "users",
     "path": "/admin/users"
   },
   {
     "title": "devices",
     "path": "/admin/devices"
-  },
-  {
-    "title": "locations",
-    "path": "/admin/locations"
   },
   {
     "title": "transactions",

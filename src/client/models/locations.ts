@@ -8,10 +8,22 @@ export const LIST_PROPERTIES = gql`
       Type
       Details
       ParentAreaId
+      DeviceCount
       CreatedOn
       CreatedBy
       UpdatedOn
       UpdatedBy
+      ParentArea {
+        Id
+        Name
+        Type
+        Details
+        ParentAreaId
+        CreatedOn
+        CreatedBy
+        UpdatedOn
+        UpdatedBy
+      }
       SubAreas {
         Id
         Name
@@ -22,6 +34,20 @@ export const LIST_PROPERTIES = gql`
         CreatedBy
         UpdatedOn
         UpdatedBy
+      }
+      Devices {
+        Id
+        CustomDesc
+        DeviceId
+        SubnetId
+        DeviceType
+        BroadcasterId
+        AreaId
+        Enabled
+        EnabledOn
+        EnabledBy
+        DisabledOn
+        DisabledBy
       }
     }
   }
@@ -35,6 +61,7 @@ export const LIST_PROPERTY_LEVELS = gql`
       Type
       Details
       ParentAreaId
+      DeviceCount
       CreatedOn
       CreatedBy
       UpdatedOn
@@ -61,6 +88,20 @@ export const LIST_PROPERTY_LEVELS = gql`
         UpdatedOn
         UpdatedBy
       }
+      Devices {
+        Id
+        CustomDesc
+        DeviceId
+        SubnetId
+        DeviceType
+        BroadcasterId
+        AreaId
+        Enabled
+        EnabledOn
+        EnabledBy
+        DisabledOn
+        DisabledBy
+      }
     }
   }
 `;
@@ -73,6 +114,7 @@ export const LIST_PROPERTY_LEVEL_UNITS = gql`
       Type
       Details
       ParentAreaId
+      DeviceCount
       CreatedOn
       CreatedBy
       UpdatedOn
@@ -88,6 +130,31 @@ export const LIST_PROPERTY_LEVEL_UNITS = gql`
         UpdatedOn
         UpdatedBy
       }
+      SubAreas {
+        Id
+        Name
+        Type
+        Details
+        ParentAreaId
+        CreatedOn
+        CreatedBy
+        UpdatedOn
+        UpdatedBy
+      }
+      Devices {
+        Id
+        CustomDesc
+        DeviceId
+        SubnetId
+        DeviceType
+        BroadcasterId
+        AreaId
+        Enabled
+        EnabledOn
+        EnabledBy
+        DisabledOn
+        DisabledBy
+      }
     }
   }
 `;
@@ -100,6 +167,7 @@ export const LIST_AREA_BY_KEYWORD = gql`
       Type
       Details
       ParentAreaId
+      DeviceCount
       CreatedOn
       CreatedBy
       UpdatedOn
@@ -156,6 +224,42 @@ export const SAVE_PROPERTY = gql`
       CreatedBy
       UpdatedOn
       UpdatedBy
+      ParentArea {
+        Id
+        Name
+        Type
+        Details
+        ParentAreaId
+        CreatedOn
+        CreatedBy
+        UpdatedOn
+        UpdatedBy
+      }
+      SubAreas {
+        Id
+        Name
+        Type
+        Details
+        ParentAreaId
+        CreatedOn
+        CreatedBy
+        UpdatedOn
+        UpdatedBy
+      }
+      Devices {
+        Id
+        CustomDesc
+        DeviceId
+        SubnetId
+        DeviceType
+        BroadcasterId
+        AreaId
+        Enabled
+        EnabledOn
+        EnabledBy
+        DisabledOn
+        DisabledBy
+      }
     }
   }
 `;
@@ -194,6 +298,20 @@ export const SAVE_PROPERTY_LEVEL = gql`
         UpdatedOn
         UpdatedBy
       }
+      Devices {
+        Id
+        CustomDesc
+        DeviceId
+        SubnetId
+        DeviceType
+        BroadcasterId
+        AreaId
+        Enabled
+        EnabledOn
+        EnabledBy
+        DisabledOn
+        DisabledBy
+      }
     }
   }
 `;
@@ -221,6 +339,37 @@ export const SAVE_PROPERTY_LEVEL_UNIT = gql`
         UpdatedOn
         UpdatedBy
       }
+      SubAreas {
+        Id
+        Name
+        Type
+        Details
+        ParentAreaId
+        CreatedOn
+        CreatedBy
+        UpdatedOn
+        UpdatedBy
+      }
+      Devices {
+        Id
+        CustomDesc
+        DeviceId
+        SubnetId
+        DeviceType
+        BroadcasterId
+        AreaId
+        Enabled
+        EnabledOn
+        EnabledBy
+        DisabledOn
+        DisabledBy
+      }
     }
+  }
+`;
+
+export const DELETE_AREA = gql`
+  mutation DeleteArea($areaIdList: [Int!]!) {
+    DeleteArea(AreaIdList: $areaIdList)
   }
 `;

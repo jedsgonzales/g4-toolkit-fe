@@ -1,63 +1,86 @@
-import { useState, useMemo, useEffect } from "react";
 import { useSnackbar } from "notistack";
+import { useEffect, useState } from "react";
 // material
-import { styled } from "@mui/material/styles";
 import {
-  Paper,
   Box,
+  Button,
   Card,
-  Table,
+  Checkbox,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  IconButton,
+  Paper,
   Stack,
-  TableRow,
+  Table,
   TableBody,
   TableCell,
-  Typography,
   TableContainer,
   TablePagination,
-  IconButton,
-  Button,
+  TableRow,
+  Typography,
 } from "@mui/material";
+import { styled } from "@mui/material/styles";
 // icons
 import CloseIcon from "@mui/icons-material/Close";
 // hooks
 //import useSettings from '@/hooks/useSettings'
 // components
-import Page from "src/components/Page";
-import SearchNotFound from "src/components/SearchNotFound";
-import Scrollbar from "src/components/Scrollbar";
 import CopyToClipboard from "src/components/CopyToClipboard";
+import Page from "src/components/Page";
+import Scrollbar from "src/components/Scrollbar";
+import SearchNotFound from "src/components/SearchNotFound";
 import { ListHead, ListToolbar } from "src/components/table";
-import LocationsCreate from "src/components/modals/LocationsCreate";
+
 // redux
-import { ThunkDispatch } from "@reduxjs/toolkit";
-import { useSelector, useDispatch } from "react-redux";
 //import { locationsList, locationsRead } from 'src/redux/locationsSlice'
 // utils
 //import numeral from 'numeral'
-import { format } from "date-fns";
-import { useLazyQuery } from "@apollo/client";
+import { useLazyQuery, useMutation } from "@apollo/client";
+import { Edit } from "@mui/icons-material";
 import {
+  DELETE_AREA,
   LIST_AREA_BY_KEYWORD,
   LIST_PROPERTIES,
   LIST_PROPERTY_LEVELS,
   LIST_PROPERTY_LEVEL_UNITS,
+  SAVE_PROPERTY,
+  SAVE_PROPERTY_LEVEL,
+  SAVE_PROPERTY_LEVEL_UNIT,
 } from "src/client/models/locations";
 import {
+  Area,
   AreaByKeywordQuery,
   AreaByKeywordQueryVariables,
+  DeleteAreaMutation,
+  DeleteAreaMutationVariables,
+  LevelAreaInput,
   LevelUnitsQuery,
   LevelUnitsQueryVariables,
   PropertiesQuery,
   PropertiesQueryVariables,
   PropertyLevelsQuery,
   PropertyLevelsQueryVariables,
+  SavePropertyLevelMutation,
+  SavePropertyLevelMutationVariables,
+  SavePropertyMutation,
+  SavePropertyMutationVariables,
+  SavePropertyUnitMutation,
+  SavePropertyUnitMutationVariables,
 } from "src/client/types/graphql";
+import { SmartG4TableState } from "src/client/types/table-state";
+import LocationsForm, { FormInput } from "src/components/modals/LocationsForm";
 //import { applySortFilter, getComparator } from '@/utils/filterObjects'
 
 // ----------------------------------------------------------------------
 const TABLE_HEAD = [
-  { id: "date", label: "Date", alignRight: false, sort: true },
-  { id: "name", label: "Name", alignRight: false, sort: true },
+  { id: "locationName", label: "Area Name", alignRight: false, sort: true },
+  { id: "locationType", label: "Area Type", alignRight: false, sort: true },
+  { id: "parentLoc", label: "Area Of", alignRight: false, sort: true },
+  { id: "subAreaCount", label: "Sub Areas", alignRight: false, sort: true },
+  { id: "deviceCount", label: "Active Devices", alignRight: false, sort: true },
 ];
 // ----------------------------------------------------------------------
 const TablePaginationStyle = styled(TablePagination)({
@@ -72,107 +95,170 @@ const TablePaginationStyle = styled(TablePagination)({
 export default function LocationsList() {
   //const { themeStretch } = useSettings()
   //const theme = useTheme()
-  const dispatch = useDispatch<ThunkDispatch<any, any, any>>();
+  //const dispatch = useDispatch<SmartG4Dispatch>();
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+  const {
+    properties,
+    selectedProperty,
+    loadingProperties,
+    savePropertyArea,
+    levels,
+    selectedLevel,
+    loadingLevels,
+    savePropertyLevel,
+    units,
+    selectedUnit,
+    loadingUnits,
+    savePropertyUnit,
+    filterResult,
+    filterLoading,
+    selectProperty,
+    selectLevel,
+    selectUnit,
+    setFilter,
+    savingArea,
+    textFilter,
+    deletingArea,
+    deleteAreaList,
+  } = useLocationAPI();
 
-  const locations = useSelector((state: any) => state.locations);
+  const loading =
+    filterLoading || loadingLevels || loadingProperties || loadingUnits;
 
-  const [loading, setLoading] = useState(false);
+  const [tableState, setTableState] = useState<SmartG4TableState<Area>>({
+    filter: "",
+    page: 0,
+    rowsPerPage: 5,
+    selected: [],
+    order: "desc",
+    orderBy: "CreatedOn",
+  });
 
-  const [stats, setStats] = useState();
-  const [openForm, setOpenForm] = useState(false);
-  const [selectedItem, setSelectedItem] = useState({});
+  const [openLocation, setOpenLocation] = useState<FormInput>();
+  const [deletePrompt, setDeletePrompt] = useState<boolean>();
 
-  const [page, setPage] = useState(0);
-  const [order, setOrder] = useState("desc");
-  const [orderBy, setOrderBy] = useState("createdAt");
-  const [filter, setFilter] = useState("");
-  /* const [filterBy, setFilterBy] = useState("locationname"); */
-  const [limit, setLimit] = useState(10);
-
-  const handleRequestSort = (event: any, property: string) => {
-    setPage(0);
-    const isAsc = orderBy === property && order === "asc";
-    setOrder(isAsc ? "desc" : "asc");
-    setOrderBy(property);
+  const handleRequestSort = (event: any, propertyKey: keyof Area) => {
+    const isAsc =
+      tableState.orderBy === propertyKey && tableState.order === "asc";
+    setTableState((prev) => {
+      return {
+        ...prev,
+        page: 0,
+        order: isAsc ? "desc" : "asc",
+        orderBy: propertyKey,
+      };
+    });
   };
 
   const handleFilter = (event: any) => {
-    setPage(0);
-    setFilter(event.target.value);
-  };
-
-  const handleOpenForm = (id: any) => {
-    if (id) {
-      setSelectedItem(locations.data.items.find((obj: any) => obj.id === id));
-    } else {
-      setSelectedItem({});
-    }
-    setOpenForm(true);
+    setTableState((prev) => {
+      return {
+        ...prev,
+        page: 0,
+        filter: event.target.value,
+      };
+    });
   };
 
   const handleChangePage = (event: any, newPage: number) => {
-    setPage(newPage);
+    setTableState((prev) => {
+      return {
+        ...prev,
+        page: newPage,
+      };
+    });
   };
 
   const handleChangeLimit = (event: any) => {
-    setLimit(parseInt(event.target.value, 10));
-    setPage(0);
+    setTableState((prev) => {
+      return {
+        ...prev,
+        page: 0,
+        rowsPerPage: parseInt(event.target.value, 10),
+      };
+    });
   };
 
-  useMemo(() => {
-    (async () => {
-      try {
-        setLoading(true);
-        console.log("fetch locations");
-        //await dispatch(locationsList({ limit, page, orderBy, order, findBy: filterBy, find: filter }))
-        setLoading(false);
-      } catch (error: any) {
-        enqueueSnackbar(error.message, {
-          variant: "error",
-          action: (key) => (
-            <IconButton size="small" onClick={() => closeSnackbar(key)}>
-              <CloseIcon />
-            </IconButton>
-          ),
-        });
-        setLoading(false);
-      }
-    })();
-  }, [page, limit, orderBy, order, /* filterBy,  */filter]);
+  const isSelected = (id: string) => {
+    return tableState.selected.includes(id);
+  };
 
-  useMemo(() => {
-    (async () => {
-      try {
-        //setLoading(true)
-        if (!stats) {
-          //const response = await dispatch(locationsRead({ id: 'stats' }))
-          //setStats(response.payload)
-          //console.log(response.payload)
-        }
-        //setLoading(false)
-      } catch (error: any) {
-        enqueueSnackbar(error.message, {
-          variant: "error",
-          action: (key) => (
-            <IconButton size="small" onClick={() => closeSnackbar(key)}>
-              <CloseIcon />
-            </IconButton>
-          ),
-        });
-        //setLoading(false)
-      }
-    })();
-  }, []);
+  const setSelected = (id: string) => {
+    if (!tableState.selected.includes(id)) {
+      setTableState((prev) => {
+        return { ...prev, selected: [...tableState.selected, id] };
+      });
+    }
+  };
+
+  const deSelect = (id: string) => {
+    if (tableState.selected.includes(id)) {
+      setTableState((prev) => {
+        return {
+          ...prev,
+          selected: tableState.selected.filter((item) => id !== item),
+        };
+      });
+    }
+  };
+
+  const cancelDelete = () => {
+    setTableState((prev) => {
+      return {
+        ...prev,
+        selected: [],
+      };
+    });
+    setDeletePrompt(false);
+  };
+
+  const confirmDelete = () => {
+    deleteAreaList(tableState.selected.map((id) => Number(id)));
+    cancelDelete();
+  };
+
+  const locations = !!textFilter
+    ? filterResult?.AreaByKeyword
+    : selectedProperty
+    ? selectedLevel
+      ? units?.LevelUnits
+      : levels?.PropertyLevels
+    : properties?.Properties;
 
   return (
     <Page title={"Backoffice - Locations"}>
       {/* Modals */}
-      <LocationsCreate
-        location={selectedItem}
-        open={openForm}
-        handleClose={() => setOpenForm(false)}
-      />
+      {!!openLocation && (
+        <LocationsForm
+          data={openLocation}
+          handleClose={() => setOpenLocation(undefined)}
+          handleSave={async (areaInput: FormInput) => {
+            if (openLocation.Type === "Property") {
+              const input = { ...areaInput, ParentAreaId: undefined };
+              await savePropertyArea({
+                variables: {
+                  property: input,
+                },
+              });
+            } else if (openLocation.Type === "Level") {
+              await savePropertyLevel({
+                variables: {
+                  level: areaInput,
+                },
+              });
+            } else {
+              await savePropertyUnit({
+                variables: {
+                  unit: areaInput,
+                },
+              });
+            }
+
+            setOpenLocation(undefined);
+          }}
+          savingState={savingArea}
+        />
+      )}
 
       <Stack direction="column" alignItems="center" justifyContent="center">
         {/* Top Section */}
@@ -190,9 +276,9 @@ export default function LocationsList() {
             <Typography variant="h2" align="center">
               Locations List
             </Typography>
-            <Button variant="contained" disabled={true}>
+            {/* <Button variant="contained" disabled={true}>
               Download Excel
-            </Button>
+            </Button> */}
           </Stack>
 
           <Card
@@ -206,10 +292,32 @@ export default function LocationsList() {
             }}
           >
             <ListToolbar
-              filter={filter}
+              filter={tableState.filter || ""}
               onFilter={handleFilter}
-              // filterBy={filterBy}
-              // handleAdd={() => handleOpenForm()}
+              addText={
+                selectedProperty
+                  ? "Add Unit"
+                  : selectedProperty
+                  ? "Add Level"
+                  : "Add Property"
+              }
+              handleAdd={() =>
+                setOpenLocation({
+                  Details: "",
+                  Id: null,
+                  Name: "",
+                  ParentAreaId: selectedLevel || selectedProperty || "",
+                  Type: selectedProperty
+                    ? "Unit"
+                    : selectedProperty
+                    ? "Level"
+                    : "Property",
+                })
+              }
+              handleDel={() => {
+                tableState.selected.length && setDeletePrompt(true);
+              }}
+              hasSelectedRows={!!tableState.selected.length}
             />
 
             <Scrollbar>
@@ -219,8 +327,8 @@ export default function LocationsList() {
               >
                 <Table>
                   <ListHead
-                    order={order}
-                    orderBy={orderBy}
+                    order={tableState.order}
+                    orderBy={tableState.orderBy}
                     headLabel={TABLE_HEAD}
                     onRequestSort={handleRequestSort}
                   />
@@ -238,47 +346,81 @@ export default function LocationsList() {
                         </TableCell>
                       </TableRow>
                     )}
-                    {locations.data.items.length === 0 && (
+                    {locations?.length === 0 && (
                       <TableRow>
                         <TableCell
                           align="center"
                           colSpan={TABLE_HEAD.length + 1}
                           sx={{ py: 3 }}
                         >
-                          <SearchNotFound searchQuery={filter} />
+                          <SearchNotFound searchQuery={tableState.filter} />
                         </TableCell>
                       </TableRow>
                     )}
-                    {locations.data.items.map((obj: any, idx: number) => {
-                      const { id, date, name } = obj;
+                    {locations?.map((row, idx: number) => {
+                      const itemIsSelected = isSelected(row.Id);
 
                       return (
                         <TableRow
                           hover
                           key={idx}
                           tabIndex={-1}
-                          //role="checkbox"
-                          //selected={isItemSelected}
-                          //aria-checked={isItemSelected}
-                          onClick={() => handleOpenForm(id)}
+                          role="checkbox"
+                          selected={itemIsSelected}
+                          aria-checked={itemIsSelected}
+                          onClick={() =>
+                            itemIsSelected
+                              ? deSelect(row.Id)
+                              : setSelected(row.Id)
+                          }
                         >
-                          <TableCell align="left">
-                            <Typography variant="body2" noWrap>
-                              {/*format(new Date(date), 'yyyy-MM-dd HH:mm:ss')*/}
-                              {format(new Date(date), "MMM. dd, yyyy hh:mm a")}
-                            </Typography>
+                          <TableCell>
+                            <Checkbox checked={itemIsSelected} />
+                            <IconButton
+                              aria-label="edit"
+                              disabled={savingArea || deletingArea}
+                              onClick={(evt) => {
+                                evt.stopPropagation();
+                                evt.preventDefault();
+                                setOpenLocation({
+                                  ...row,
+                                  ParentAreaId: row.ParentAreaId
+                                    ? Number(row.ParentAreaId)
+                                    : 0,
+                                });
+                              }}
+                            >
+                              <Edit />
+                            </IconButton>
                           </TableCell>
+
                           <TableCell align="left">
                             <Stack
                               direction="row"
                               alignItems="center"
                               spacing={1}
                             >
-                              <CopyToClipboard data={name} />
+                              <CopyToClipboard data={row.Name} />
                               <Typography variant="body2" noWrap>
-                                {name}
+                                {row.Name}
                               </Typography>
                             </Stack>
+                          </TableCell>
+
+                          <TableCell align="left">
+                            {row.Type}
+                          </TableCell>
+
+                          <TableCell align="left">
+                            {row.ParentArea?.Name || ""}
+                          </TableCell>
+
+                          <TableCell align="left">
+                            {row.SubAreas.length}
+                          </TableCell>
+
+                          <TableCell align="left">
+                            {row.DeviceCount || 0}
                           </TableCell>
                         </TableRow>
                       );
@@ -291,12 +433,34 @@ export default function LocationsList() {
             <TablePaginationStyle
               rowsPerPageOptions={[5, 10, 25]}
               component="div"
-              count={locations.data.totalItems}
-              rowsPerPage={limit}
-              page={page}
+              count={locations?.length || 0}
+              rowsPerPage={tableState.rowsPerPage}
+              page={tableState.page}
               onPageChange={handleChangePage}
               onRowsPerPageChange={handleChangeLimit}
             />
+
+            <Dialog
+              open={deletePrompt}
+              onClose={cancelDelete}
+              aria-labelledby="delete-loc-title"
+              aria-describedby="delete-loc-description"
+            >
+              <DialogTitle id="delete-loc-title">
+                {"Delete Selected Locations?"}
+              </DialogTitle>
+              <DialogContent>
+                <DialogContentText id="delete-loc-description">
+                  Deleting these locations will auto remove all sub-locations, if there are any. Proceed?
+                </DialogContentText>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={cancelDelete}>Cancel</Button>
+                <Button onClick={confirmDelete} autoFocus>
+                  Confirm
+                </Button>
+              </DialogActions>
+            </Dialog>
           </Card>
         </Box>
       </Stack>
@@ -364,6 +528,41 @@ const useLocationAPI = () => {
       }
     );
 
+  const [
+    savePropertyArea,
+    { loading: savingPropertyArea, data: propertySaved },
+  ] = useMutation<SavePropertyMutation, SavePropertyMutationVariables>(
+    SAVE_PROPERTY,
+    {
+      fetchPolicy: "network-only",
+    }
+  );
+
+  const [
+    savePropertyLevel,
+    { loading: savingPropertyLevel, data: levelSaved },
+  ] = useMutation<
+    SavePropertyLevelMutation,
+    SavePropertyLevelMutationVariables
+  >(SAVE_PROPERTY_LEVEL, {
+    fetchPolicy: "network-only",
+  });
+
+  const [savePropertyUnit, { loading: savingPropertyUnit, data: unitSaved }] =
+    useMutation<SavePropertyUnitMutation, SavePropertyUnitMutationVariables>(
+      SAVE_PROPERTY_LEVEL_UNIT,
+      {
+        fetchPolicy: "network-only",
+      }
+    );
+
+  const [deleteArea, { loading: deletingArea }] = useMutation<
+    DeleteAreaMutation,
+    DeleteAreaMutationVariables
+  >(DELETE_AREA, {
+    fetchPolicy: "network-only",
+  });
+
   useEffect(() => {
     loadPropertyLocations();
   }, []);
@@ -411,36 +610,18 @@ const useLocationAPI = () => {
           propertyId: Number(selectedProperty),
         },
       });
-    } else {
-      enqueueSnackbar("Property List: Not Loaded", {
-        variant: "error",
-        action: (key) => (
-          <IconButton size="small" onClick={() => closeSnackbar(key)}>
-            <CloseIcon />
-          </IconButton>
-        ),
-      });
     }
-  }, [selectedProperty]);
+  }, [selectedProperty, properties]);
 
   useEffect(() => {
-    if (selectedLevel !== undefined) {
+    if (levels && selectedLevel !== undefined) {
       loadPropertyLevelUnits({
         variables: {
           levelId: Number(selectedLevel),
         },
       });
-    } else {
-      enqueueSnackbar("Property Level List: Not Loaded", {
-        variant: "error",
-        action: (key) => (
-          <IconButton size="small" onClick={() => closeSnackbar(key)}>
-            <CloseIcon />
-          </IconButton>
-        ),
-      });
     }
-  }, [selectedLevel]);
+  }, [selectedLevel, levels]);
 
   useEffect(() => {
     !!textFilter &&
@@ -450,6 +631,33 @@ const useLocationAPI = () => {
         },
       });
   }, [textFilter]);
+
+  useEffect(() => {
+    propertySaved &&
+      reloadProperties().then(() => {
+        if (textFilter) {
+          refetch();
+        }
+      });
+  }, [propertySaved]);
+
+  useEffect(() => {
+    levelSaved &&
+      reloadLevels().then(() => {
+        if (textFilter) {
+          refetch();
+        }
+      });
+  }, [levelSaved]);
+
+  useEffect(() => {
+    unitSaved &&
+      reloadUnits().then(() => {
+        if (textFilter) {
+          refetch();
+        }
+      });
+  }, [unitSaved]);
 
   // exports
   const selectProperty = (id?: string) => {
@@ -474,18 +682,52 @@ const useLocationAPI = () => {
     }
   };
 
+  const deleteAreaList = (areaIds: number[]) => {
+    deleteArea({
+      variables: {
+        areaIdList: areaIds,
+      },
+    }).finally(() => {
+      if (!!textFilter) {
+        refetch();
+      }
+
+      if (!selectedProperty) {
+        reloadProperties();
+      }
+
+      if (selectedProperty) {
+        reloadLevels();
+      }
+
+      if (selectedLevel) {
+        reloadUnits();
+      }
+    });
+  };
+
   return {
     properties,
+    selectedProperty,
     loadingProperties,
+    savePropertyArea,
     levels,
+    selectedLevel,
     loadingLevels,
+    savePropertyLevel,
     units,
+    selectedUnit,
     loadingUnits,
+    savePropertyUnit,
     filterResult: data,
     filterLoading: loading,
     selectProperty,
     selectLevel,
     selectUnit,
     setFilter,
+    textFilter,
+    savingArea: savingPropertyArea || savingPropertyLevel || savingPropertyUnit,
+    deletingArea,
+    deleteAreaList,
   };
 };
