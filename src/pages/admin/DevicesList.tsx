@@ -30,12 +30,11 @@ import { ListHead, ListToolbar } from 'src/components/table'
 import DevicesCreate from 'src/components/modals/DevicesCreate'
 // redux
 import { SmartG4Dispatch, SmartG4RootState } from "src/redux/store";
-import { useSelector, useDispatch } from 'react-redux'
-import { devicesList, devicesRead } from 'src/redux/devicesSlice'
+import { useSelector, useDispatch } from 'react-redux';
+import { devicesList, devicesRead } from 'src/redux/devicesSlice';
 // utils
 //import numeral from 'numeral'
 import { format } from 'date-fns'
-import { DateTime } from "luxon";
 //import { applySortFilter, getComparator } from '@/utils/filterObjects'
 
 // ----------------------------------------------------------------------
@@ -57,11 +56,9 @@ export default function DevicesList() {
   const { enqueueSnackbar, closeSnackbar } = useSnackbar()
 
   const devices = useSelector((state: SmartG4RootState) => state.devices);
-  const auth = useSelector((state: SmartG4RootState) => state.auth);
 
   const [loading, setLoading] = useState(false)
 
-  const [stats, setStats] = useState()
   const [openForm, setOpenForm] = useState(false)
   const [selectedItem, setSelectedItem] = useState({})
 
@@ -107,16 +104,9 @@ export default function DevicesList() {
     (async () => {
       try {
         setLoading(true)
+        console.log('fetch devices')
         //await dispatch(devicesList({ limit, page, orderBy, order, findBy: filterBy, find: filter }))
-        const timeFrame = DateTime.local()
-          .startOf("hour")
-          .toFormat("yyyyMMddHHmmss");
-        if (auth.data?.token) {
-          //if (auth.data?.validationMark !== timeFrame) {
-          console.log('fetch devices')
-          await dispatch(devicesList({}))
-          //}
-        }
+        await dispatch(devicesList({}))
         setLoading(false)
       }
       catch (error: any) {
@@ -131,32 +121,8 @@ export default function DevicesList() {
         setLoading(false)
       }
     })()
-  }, [dispatch, auth.data?.roles])
+  }, [dispatch])
 
-  useMemo(() => {
-    (async () => {
-      try {
-        //setLoading(true)
-        if (!stats) {
-          //const response = await dispatch(devicesRead({ id: 'stats' }))
-          //setStats(response.payload)
-          //console.log(response.payload)
-        }
-        //setLoading(false)
-      }
-      catch (error: any) {
-        enqueueSnackbar(error.message, {
-          variant: 'error',
-          action: (key) => (
-            <IconButton size="small" onClick={() => closeSnackbar(key)}>
-              <CloseIcon />
-            </IconButton>
-          )
-        })
-        //setLoading(false)
-      }
-    })()
-  }, [])
 
   return (
     <Page title={'Backoffice - Devices'} >

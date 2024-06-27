@@ -1,14 +1,22 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { apolloClient } from "src/client/apollo";
+import {
+  GET_ALL_USERS,
+} from "src/client/models/users";
 
 const BACKEND_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000/api/v1'
 
+type UserRole = {
+  Id?: String
+}
+
 type UserType = {
-  id?: String
-  date?: String
-  email?: String
-  username?: String
-  firstname?: String
-  lastname?: String
+  Id?: String
+  CreatedOn?: String
+  Username?: String
+  FirstName?: String
+  LastName?: String
+  Roles?: Array<UserRole>
 }
 
 interface UsersState {
@@ -16,29 +24,25 @@ interface UsersState {
   //totalItems: number;
   data: {
     items: Array<UserType>
-    totalItems: Number
+    totalItems: number
   }
   loading: boolean
   error: string | null
 }
-
-const TestData = [
-  { id: '123-123456-1234', date: '2024-01-01', email: 'admin@g4.com', username: 'admin_g4', firstname: 'Admin', lastname: 'Account', roles: ['admin'] },
-  { id: '123-123456-1235', date: '2024-01-02', email: 'user@g4.com', username: 'user_g4', firstname: 'User', lastname: 'Account', roles: ['user'] },
-]
 
 const initialState: UsersState = {
   //items: [],
   //totalItems: 0,
   //data: null,
   data: {
-    items: TestData,
-    totalItems: TestData.length
+    items: [],
+    totalItems: 0
   },
   loading: false,
   error: null,
 }
 
+/*
 export const usersList = createAsyncThunk(
   'users/list',
   async (payload: any, thunkAPI) => {
@@ -63,6 +67,35 @@ export const usersList = createAsyncThunk(
     }
   }
 )
+*/
+export const usersList = createAsyncThunk(
+  "users/list",
+  async (payload: any, thunkAPI) => {
+    return await apolloClient
+      .query({
+        query: GET_ALL_USERS,
+        fetchPolicy: "network-only",
+      })
+      .then((resp) => {
+        if (resp.errors) {
+          return thunkAPI.rejectWithValue(resp.errors);
+        } else {
+          if (resp.data) {
+            return thunkAPI.fulfillWithValue({
+              ...resp.data,
+            });
+          } else {
+            return thunkAPI.rejectWithValue("Session Expired");
+          }
+        }
+      })
+      .catch((err) => {
+        console.log('error', err);
+        return thunkAPI.rejectWithValue(err.message);
+      });
+  }
+);
+
 
 export const usersCreate = createAsyncThunk(
   'users/create',
@@ -212,7 +245,11 @@ export const usersSlice = createSlice({
     builder
       .addCase(usersList.fulfilled, (state, { payload }) => {
         state.loading = false
-        state.data = payload
+        //state.data = payload
+        state.data = {
+          items: payload.AllUsers,
+          totalItems: payload.AllUsers.length
+        }
       })
       .addCase(usersList.pending, (state) => {
         state.loading = true

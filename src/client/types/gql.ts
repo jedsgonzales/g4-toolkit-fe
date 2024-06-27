@@ -29,6 +29,7 @@ const documents = {
     "\n  query PendingSourceFilters {\n    PendingSourceFilters {\n      Id\n      RuleName\n      OrderNo\n      Ip\n      DeviceId\n      SubnetId\n      DetectedOn\n    }\n  }\n": types.PendingSourceFiltersDocument,
     "\n  mutation UpdateFilter($filter: SystemFilterInput!) {\n    UpdateFilter(filter: $filter) {\n      Id\n      RuleName\n      OrderNo\n      Ip\n      DeviceId\n      SubnetId\n      FilterAction\n      DetectedOn\n      UpdatedOn\n      UpdatedBy\n    }\n  }\n": types.UpdateFilterDocument,
     "\n  mutation DeleteFilter($filterIds: [String!]!) {\n    DeleteFilter(filterIds: $filterIds)\n  }\n": types.DeleteFilterDocument,
+    "\n  query AllUsers {\n    AllUsers {\n      Id\n      Username\n      FirstName\n      LastName\n      Roles {\n        RoleName\n      }\n      CreatedOn\n    }\n  }\n": types.AllUsersDocument,
 };
 
 /**
@@ -109,6 +110,10 @@ export function gql(source: "\n  mutation UpdateFilter($filter: SystemFilterInpu
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  mutation DeleteFilter($filterIds: [String!]!) {\n    DeleteFilter(filterIds: $filterIds)\n  }\n"): (typeof documents)["\n  mutation DeleteFilter($filterIds: [String!]!) {\n    DeleteFilter(filterIds: $filterIds)\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query AllUsers {\n    AllUsers {\n      Id\n      Username\n      FirstName\n      LastName\n      Roles {\n        RoleName\n      }\n      CreatedOn\n    }\n  }\n"): (typeof documents)["\n  query AllUsers {\n    AllUsers {\n      Id\n      Username\n      FirstName\n      LastName\n      Roles {\n        RoleName\n      }\n      CreatedOn\n    }\n  }\n"];
 
 export function gql(source: string) {
   return (documents as any)[source] ?? {};
