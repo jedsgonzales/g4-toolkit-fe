@@ -11,6 +11,11 @@ Download or git clone this repository
 npm install
 ```
 
+# backend should be running before running codegen
+```shell
+npm run codegen
+```
+
 # Development
 ```shell
 npm run dev

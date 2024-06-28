@@ -220,10 +220,10 @@ export default function LocationsList() {
   const locations = !!textFilter
     ? filterResult?.AreaByKeyword
     : selectedProperty
-    ? selectedLevel
-      ? units?.LevelUnits
-      : levels?.PropertyLevels
-    : properties?.Properties;
+      ? selectedLevel
+        ? units?.LevelUnits
+        : levels?.PropertyLevels
+      : properties?.Properties;
 
   return (
     <Page title={"Backoffice - Locations"}>
@@ -298,8 +298,8 @@ export default function LocationsList() {
                 selectedProperty
                   ? "Add Unit"
                   : selectedProperty
-                  ? "Add Level"
-                  : "Add Property"
+                    ? "Add Level"
+                    : "Add Property"
               }
               handleAdd={() =>
                 setOpenLocation({
@@ -310,8 +310,8 @@ export default function LocationsList() {
                   Type: selectedProperty
                     ? "Unit"
                     : selectedProperty
-                    ? "Level"
-                    : "Property",
+                      ? "Level"
+                      : "Property",
                 })
               }
               handleDel={() => {
