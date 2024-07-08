@@ -79,6 +79,7 @@ const validationSchema = Yup.object({
   Name: string().required("Name is required"),
   Details: string().optional().nullable(),
   ParentAreaId: number().required().min(0).default(0),
+  Type: string().required(),
 });
 
 export default function LocationsForm({
@@ -99,6 +100,7 @@ export default function LocationsForm({
     Name: data.Name || "",
     Details: data?.Details || null,
     ParentAreaId: data?.ParentAreaId || 0,
+    Type: 'Property',
   };
 
   const {
@@ -107,7 +109,7 @@ export default function LocationsForm({
     reset,
     formState: { errors },
   } = useForm({
-    resolver: yupResolver<Omit<FormInput, "Type">>(validationSchema),
+    resolver: yupResolver<FormInput>(validationSchema),
     defaultValues: initialValues,
   });
 
@@ -123,6 +125,7 @@ export default function LocationsForm({
         Name: data?.Name || "",
         Details: data?.Details || "",
         ParentAreaId: data?.ParentAreaId || 0,
+        Type: data.Type || 'Property',
       });
     }
   }, [data, reset]);
@@ -172,6 +175,14 @@ export default function LocationsForm({
                     {...register("Details")}
                     error={!!errors.Details}
                     helperText={errors.Details?.message}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    label="Area Type"
+                    {...register("Type")}
+                    disabled
                   />
                 </Grid>
               </Grid>

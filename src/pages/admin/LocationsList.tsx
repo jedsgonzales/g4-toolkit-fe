@@ -72,6 +72,7 @@ import {
 } from "src/client/types/graphql";
 import { SmartG4TableState } from "src/client/types/table-state";
 import LocationsForm, { FormInput } from "src/components/modals/LocationsForm";
+import { Link, useNavigate, useParams } from "react-router-dom";
 //import { applySortFilter, getComparator } from '@/utils/filterObjects'
 
 // ----------------------------------------------------------------------
@@ -96,7 +97,10 @@ export default function LocationsList() {
   //const { themeStretch } = useSettings()
   //const theme = useTheme()
   //const dispatch = useDispatch<SmartG4Dispatch>();
-  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+  // const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+
+  const { property, level, unit } = useParams();
+  const navigate = useNavigate();
   const {
     properties,
     selectedProperty,
@@ -120,7 +124,7 @@ export default function LocationsList() {
     textFilter,
     deletingArea,
     deleteAreaList,
-  } = useLocationAPI();
+  } = useLocationAPI({ property, level, unit });
 
   const loading =
     filterLoading || loadingLevels || loadingProperties || loadingUnits;
@@ -136,6 +140,29 @@ export default function LocationsList() {
 
   const [openLocation, setOpenLocation] = useState<FormInput>();
   const [deletePrompt, setDeletePrompt] = useState<boolean>();
+
+  useEffect(() => {
+    if(property){
+      selectProperty(property);
+    }
+  }, [property]);
+
+  useEffect(() => {
+    if(level){
+      selectLevel(level);
+    }
+  }, [level]);
+
+  useEffect(() => {
+    if(unit){
+      selectUnit(unit);
+    }
+  }, [unit]);
+
+  useEffect(() => {
+    clearSelection();
+    console.log('area levels', property, level, unit);
+  }, [property, level, unit]);
 
   const handleRequestSort = (event: any, propertyKey: keyof Area) => {
     const isAsc =
@@ -202,13 +229,17 @@ export default function LocationsList() {
     }
   };
 
-  const cancelDelete = () => {
+  const clearSelection = () => {
     setTableState((prev) => {
       return {
         ...prev,
         selected: [],
       };
     });
+  }
+
+  const cancelDelete = () => {
+    clearSelection();
     setDeletePrompt(false);
   };
 
@@ -233,8 +264,10 @@ export default function LocationsList() {
           data={openLocation}
           handleClose={() => setOpenLocation(undefined)}
           handleSave={async (areaInput: FormInput) => {
+            const { Type, ...data } = areaInput;
+
             if (openLocation.Type === "Property") {
-              const input = { ...areaInput, ParentAreaId: undefined };
+              const input = { ...data, ParentAreaId: undefined };
               await savePropertyArea({
                 variables: {
                   property: input,
@@ -243,13 +276,13 @@ export default function LocationsList() {
             } else if (openLocation.Type === "Level") {
               await savePropertyLevel({
                 variables: {
-                  level: areaInput,
+                  level: data,
                 },
               });
             } else {
               await savePropertyUnit({
                 variables: {
-                  unit: areaInput,
+                  unit: data,
                 },
               });
             }
@@ -295,11 +328,7 @@ export default function LocationsList() {
               filter={tableState.filter || ""}
               onFilter={handleFilter}
               addText={
-                selectedProperty
-                  ? "Add Unit"
-                  : selectedProperty
-                  ? "Add Level"
-                  : "Add Property"
+                selectedProperty ? (selectedLevel ? "Add Unit" : "Add Level") : "Add Property"
               }
               handleAdd={() =>
                 setOpenLocation({
@@ -307,16 +336,23 @@ export default function LocationsList() {
                   Id: null,
                   Name: "",
                   ParentAreaId: selectedLevel || selectedProperty || "",
-                  Type: selectedProperty
-                    ? "Unit"
-                    : selectedProperty
-                    ? "Level"
-                    : "Property",
+                  Type: selectedProperty ? (selectedLevel ? "Unit" : "Level") : "Property",
                 })
               }
               handleDel={() => {
                 tableState.selected.length && setDeletePrompt(true);
               }}
+              handleBackArea={selectedLevel || selectedProperty ? () => {
+                clearSelection();
+                if(selectedLevel){
+                  selectLevel(undefined);
+                  navigate(`/admin/locations/${property}`)
+                } else if (selectedProperty) {
+                  selectLevel(undefined);
+                  selectProperty(undefined);
+                  navigate(`/admin/locations`)
+                }
+              } : undefined}
               hasSelectedRows={!!tableState.selected.length}
             />
 
@@ -402,7 +438,10 @@ export default function LocationsList() {
                             >
                               <CopyToClipboard data={row.Name} />
                               <Typography variant="body2" noWrap>
-                                {row.Name}
+                                { row.Type === "Property" ? <Link to={`/admin/locations/${row.Id}`}>{row.Name}</Link> : (
+                                  row.Type === "Level" ? <Link to={`/admin/locations/${property}/${row.Id}`}>{row.Name}</Link> :
+                                  <Link to={`/admin/locations/${property}/${level}/${row.Id}`}>{row.Name}</Link>
+                                ) }
                               </Typography>
                             </Stack>
                           </TableCell>
@@ -416,7 +455,7 @@ export default function LocationsList() {
                           </TableCell>
 
                           <TableCell align="left">
-                            {row.SubAreas.length}
+                            {row.SubAreas?.length}
                           </TableCell>
 
                           <TableCell align="left">
@@ -441,7 +480,7 @@ export default function LocationsList() {
             />
 
             <Dialog
-              open={deletePrompt}
+              open={!!deletePrompt}
               onClose={cancelDelete}
               aria-labelledby="delete-loc-title"
               aria-describedby="delete-loc-description"
@@ -468,12 +507,13 @@ export default function LocationsList() {
   );
 }
 
-const useLocationAPI = () => {
+interface LocationAPIProps { property?: any, level?: any, unit?: any }
+const useLocationAPI = ({ property, level, unit }: LocationAPIProps) => {
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const [textFilter, setTextFilter] = useState("");
-  const [selectedProperty, setSelectedProperty] = useState<any>();
-  const [selectedLevel, setSelectedLevel] = useState<any>();
-  const [selectedUnit, setSelectedUnit] = useState<any>();
+  const [selectedProperty, setSelectedProperty] = useState<any>(property);
+  const [selectedLevel, setSelectedLevel] = useState<any>(level);
+  const [selectedUnit, setSelectedUnit] = useState<any>(unit);
 
   const [
     loadPropertyLocations,

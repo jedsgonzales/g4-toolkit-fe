@@ -29,11 +29,9 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         <GoogleOAuthProvider
           clientId={import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID}
         >
-          <BrowserRouter>
             <Provider store={store}>
               <App />
             </Provider>
-          </BrowserRouter>
         </GoogleOAuthProvider>
       </HelmetProvider>
     </ApolloProvider>

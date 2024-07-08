@@ -13,6 +13,7 @@ import {
 // icons
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
+import { ArrowUpward } from "@mui/icons-material";
 
 // ----------------------------------------------------------------------
 
@@ -47,6 +48,7 @@ interface Props {
   addText?: String;
   handleAdd?: () => void;
   handleDel?: () => void;
+  handleBackArea?: () => void;
   hasSelectedRows?: boolean;
 }
 
@@ -57,6 +59,7 @@ export default function ListToolbar({
   handleAdd,
   hasSelectedRows,
   handleDel,
+  handleBackArea,
 }: Props) {
   return (
     <RootStyle>
@@ -80,6 +83,19 @@ export default function ListToolbar({
 
         <Grid item xs={6}>
           <Stack direction="row" justifyContent="flex-end" alignItems="center" spacing={2}>
+          {handleBackArea && (
+                <Tooltip title="Parent Location">
+                  <Button
+                    variant="outlined"
+                    startIcon={<ArrowUpward />}
+                    onClick={() => handleBackArea()}
+                    size="large"
+                  >
+                    Parent Area
+                  </Button>
+                </Tooltip>
+            )}
+
             {handleAdd && (
                 <Tooltip title={addText}>
                   <Button

@@ -1,4 +1,4 @@
-import { Route, Routes, Navigate } from 'react-router-dom'
+import { Route, Routes, Navigate, createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { SnackbarProvider } from 'notistack'
 
 // theme
@@ -21,39 +21,31 @@ import DevicesList from './pages/admin/DevicesList'
 // user pages
 import SystemFilterList from './pages/admin/SystemFilters'
 
+const router = createBrowserRouter([
+  { path: "/", element: <PlainLayout /> },
+  { path: "", element: <Navigate to='admin' /> },
+  { path: "/login", element: <Login /> },
+  { path: "/admin/*", element: <AdminLayout />, children: [
+    { index: true, element: <SystemFilterList /> },
+    { path: '*', element: <SystemFilterList /> },
+
+    { path: 'system-filters', element: <SystemFilterList /> },
+    { path: 'users', element: <UsersList /> },
+    { path: 'devices', element: <DevicesList /> },
+    { path: 'locations', element: <LocationsList /> },
+    { path: 'locations/:property', element: <LocationsList /> },
+    { path: 'locations/:property/:level', element: <LocationsList /> },
+    { path: 'locations/:property/:unit', element: <LocationsList /> },
+  ] },
+  { path: "/user", element: <UserLayout /> },
+  { path: "*", element: <Page404 /> },
+]);
 
 const App = () => {
   return (
     <ThemeConfig>
       <SnackbarProvider maxSnack={3}>
-        <Routes>
-          <Route path='/admin' element={<AdminLayout />}>
-            <Route path='' element={<Navigate to='system-filters' />} />
-            <Route path='system-filters' element={<SystemFilterList />} />
-            <Route path='users' element={<UsersList />} />
-            <Route path='devices' element={<DevicesList />} />
-            <Route path='locations' element={<LocationsList />} />
-            {/*
-            <Route path='projects' element={<ProjectsList />} />
-            <Route path="products">
-              <Route path="" element={<Navigate to="panels" />} />
-              <Route path="panels" element={<PanelsList />} />
-              <Route path="inverters" element={<InvertersList />} />
-              <Route path="batteries" element={<BatteriesList />} />
-            </Route>
-  */}
-          </Route>
-          <Route path='/user' element={<UserLayout />}>
-            <Route path='' element={<Navigate to='devices' />} />
-            <Route path='devices' element={<DevicesList />} />
-            <Route path='locations' element={<LocationsList />} />
-          </Route>
-          <Route path="/" element={<PlainLayout />}>
-            <Route path='' element={<Navigate to='admin' />} />
-            <Route path="login" element={<Login />} />
-            <Route path="*" element={<Page404 />} />
-          </Route>
-        </Routes>
+        <RouterProvider router={router} />
       </SnackbarProvider>
     </ThemeConfig>
   )
