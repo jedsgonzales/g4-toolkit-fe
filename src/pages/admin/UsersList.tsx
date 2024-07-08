@@ -29,9 +29,9 @@ import CopyToClipboard from 'src/components/CopyToClipboard'
 import { ListHead, ListToolbar } from 'src/components/table'
 import UsersCreate from 'src/components/modals/UsersCreate'
 // redux
-import { SmartG4Dispatch, SmartG4RootState } from "src/redux/store";
-import { useSelector, useDispatch } from 'react-redux';
-import { usersList, usersRead } from 'src/redux/usersSlice';
+import { SmartG4Dispatch, SmartG4RootState } from "src/redux/store"
+import { useSelector, useDispatch } from 'react-redux'
+import { usersList } from 'src/redux/usersSlice'
 // utils
 //import numeral from 'numeral'
 //import { format } from 'date-fns'
@@ -64,7 +64,7 @@ export default function UsersList() {
 
   const [loading, setLoading] = useState(false)
 
-  const [stats, setStats] = useState()
+  //const [stats, setStats] = useState()
   const [openForm, setOpenForm] = useState(false)
   const [selectedItem, setSelectedItem] = useState({})
 
@@ -72,7 +72,7 @@ export default function UsersList() {
   const [order, setOrder] = useState('desc')
   const [orderBy, setOrderBy] = useState('createdAt')
   const [filter, setFilter] = useState('')
-  const [filterBy, setFilterBy] = useState('username')
+  //const [filterBy, setFilterBy] = useState('username')
   const [limit, setLimit] = useState(10)
 
   const handleRequestSort = (event: any, property: string) => {
@@ -166,7 +166,7 @@ export default function UsersList() {
             <ListToolbar
               filter={filter}
               onFilter={handleFilter}
-              filterBy={filterBy}
+            //filterBy={filterBy}
             //handleAdd={() => handleOpenForm()}
             />
 

@@ -251,10 +251,10 @@ export default function LocationsList() {
   const locations = !!textFilter
     ? filterResult?.AreaByKeyword
     : selectedProperty
-    ? selectedLevel
-      ? units?.LevelUnits
-      : levels?.PropertyLevels
-    : properties?.Properties;
+      ? selectedLevel
+        ? units?.LevelUnits
+        : levels?.PropertyLevels
+      : properties?.Properties;
 
   return (
     <Page title={"Backoffice - Locations"}>

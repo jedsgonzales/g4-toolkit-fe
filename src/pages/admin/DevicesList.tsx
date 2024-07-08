@@ -158,7 +158,7 @@ export default function DevicesList() {
             <ListToolbar
               filter={filter}
               onFilter={handleFilter}
-              filterBy={filterBy}
+            //filterBy={filterBy}
             //handleAdd={() => handleOpenForm()}
             />
 
