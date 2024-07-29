@@ -120,7 +120,7 @@ export const usersCreate = createAsyncThunk(
 
 export const usersUpdate = createAsyncThunk(
     'users/update',
-    async (payload: { id: string }, thunkAPI) => {
+    async (payload: { id: string | undefined }, thunkAPI) => {
         try {
             const token = localStorage.getItem('token')
             const response = await fetch(BACKEND_URL + '/users/' + payload.id, {
@@ -147,10 +147,10 @@ export const usersUpdate = createAsyncThunk(
 
 export const usersDelete = createAsyncThunk(
     'users/delete',
-    async (payload: { id: string }, thunkAPI) => {
+    async (payload: { ids: Array<string> }, thunkAPI) => {
         try {
             const token = localStorage.getItem('token')
-            const response = await fetch(BACKEND_URL + '/users/' + payload.id, {
+            const response = await fetch(BACKEND_URL + '/users/' + payload.ids[0], {
                 method: 'DELETE',
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -171,7 +171,7 @@ export const usersDelete = createAsyncThunk(
 
 export const usersRead = createAsyncThunk(
     'users/read',
-    async (payload: { id: string }, thunkAPI) => {
+    async (payload: { id: string | undefined }, thunkAPI) => {
         try {
             const token = localStorage.getItem('token')
             const response = await fetch(BACKEND_URL + '/users/' + payload.id, {

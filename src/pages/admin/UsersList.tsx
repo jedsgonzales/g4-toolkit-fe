@@ -15,10 +15,13 @@ import {
     TableContainer,
     TablePagination,
     IconButton,
-    Button,
+    Checkbox,
+    Tooltip
 } from '@mui/material'
 // icons
 import CloseIcon from '@mui/icons-material/Close'
+import EditIcon from '@mui/icons-material/Edit'
+//import DeleteIcon from '@mui/icons-material/Delete' 
 // hooks
 //import useSettings from '@/hooks/useSettings'
 // components
@@ -26,7 +29,7 @@ import Page from 'src/components/Page'
 import SearchNotFound from 'src/components/SearchNotFound'
 import Scrollbar from 'src/components/Scrollbar'
 import CopyToClipboard from 'src/components/CopyToClipboard'
-import { ListHead, ListToolbar } from 'src/components/table'
+import { ListHead, ListToolbar, HeadLabelsType } from 'src/components/table'
 import UsersCreate from 'src/components/modals/UsersCreate'
 // types
 import {
@@ -43,11 +46,12 @@ import { usersList } from 'src/redux/usersSlice'
 //import { applySortFilter, getComparator } from '@/utils/filterObjects'
 
 // ----------------------------------------------------------------------
-const TABLE_HEAD = [
+const TABLE_HEAD: Array<HeadLabelsType> = [
     { id: 'createdOn', label: 'date', alignRight: false, sort: true },
     { id: 'LastName', label: 'fullname', alignRight: false, sort: false },
     { id: 'Username', label: 'username', alignRight: false, sort: true },
-    { id: 'Roles', label: 'roles', alignRight: false },
+    { id: 'Roles', label: 'roles', alignRight: false, sort: false },
+    //{ id: 'Actions', label: '', alignRight: false, sort: false },
 ]
 // ----------------------------------------------------------------------
 const TablePaginationStyle = styled(TablePagination)({
@@ -64,7 +68,6 @@ export default function UsersList() {
     //const theme = useTheme()
     const dispatch = useDispatch<SmartG4Dispatch>()
     const { enqueueSnackbar, closeSnackbar } = useSnackbar()
-
     const users = useSelector((state: SmartG4RootState) => state.users)
 
     const [loading, setLoading] = useState(false)
@@ -73,8 +76,10 @@ export default function UsersList() {
     const [openForm, setOpenForm] = useState(false)
     const [selectedItem, setSelectedItem] = useState<UserWithRoles | undefined>(undefined)
 
+    const [selected, setSelected] = useState<Array<string>>([]);
+
     const [page, setPage] = useState(0)
-    const [order, setOrder] = useState('desc')
+    const [order, setOrder] = useState<'asc' | 'desc'>('desc')
     const [orderBy, setOrderBy] = useState('createdAt')
     const [filter, setFilter] = useState('')
     //const [filterBy, setFilterBy] = useState('username')
@@ -112,6 +117,35 @@ export default function UsersList() {
     const handleChangeLimit = (event: React.ChangeEvent<HTMLInputElement>) => {
         setLimit(parseInt(event.target.value, 10));
         setPage(0);
+    }
+
+    const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
+        if (event.target.checked) {
+            const newSelecteds = users.data.items.map((n) => n.Id);
+            setSelected(newSelecteds);
+            return;
+        }
+        setSelected([]);
+    };
+
+    const handleClick = (id: string) => {
+        const selectedIndex = selected?.indexOf(id);
+        let newSelected: Array<string> = [];
+        if (selectedIndex === -1) {
+            newSelected = newSelected.concat(selected, id);
+        }
+        else if (selectedIndex === 0) {
+            newSelected = newSelected.concat(selected.slice(1));
+        } else if (selectedIndex === selected.length - 1) {
+            newSelected = newSelected.concat(selected.slice(0, -1));
+        } else if (selectedIndex > 0) {
+            newSelected = newSelected.concat(selected.slice(0, selectedIndex), selected.slice(selectedIndex + 1));
+        }
+        setSelected(newSelected);
+    };
+
+    const handleDelete = () => {
+        console.log(selected)
     }
 
     useMemo(() => {
@@ -170,7 +204,6 @@ export default function UsersList() {
                         <Typography variant='h2' align='center'>
                             Users List
                         </Typography>
-                        <Button variant='contained' disabled={true}>Download Excel</Button>
                     </Stack>
 
                     <Card sx={{
@@ -196,6 +229,11 @@ export default function UsersList() {
                                         orderBy={orderBy}
                                         headLabel={TABLE_HEAD}
                                         onRequestSort={handleRequestSort}
+                                        rowCount={users.data.totalItems}
+                                        numSelected={selected?.length || 0}
+                                        onSelectAllClick={handleSelectAllClick}
+                                        onAdd={() => handleOpenForm('')}
+                                        onDelete={() => handleDelete()}
                                     />
                                     <TableBody>
                                         {loading && (
@@ -215,19 +253,20 @@ export default function UsersList() {
                                         {users.data.items.map((user: UserWithRoles, idx: number) => {
                                             const { Id, CreatedOn, Username, FirstName, LastName, Roles } = user
                                             const roles = Roles?.map((role: UserRole) => role.RoleName)
-
+                                            const isItemSelected = selected?.indexOf(Id) !== -1;
 
                                             return (
                                                 <TableRow
                                                     hover
                                                     key={idx}
                                                     tabIndex={-1}
-                                                    //role="checkbox"
-                                                    //selected={isItemSelected}
-                                                    //aria-checked={isItemSelected}
-                                                    onClick={() => handleOpenForm(Id)}
+                                                    role="checkbox"
+                                                    selected={isItemSelected}
+                                                    aria-checked={isItemSelected}
+                                                //onClick={() => handleOpenForm(Id)}
                                                 >
-                                                    <TableCell align="left">
+                                                    <TableCell padding="checkbox">
+                                                        <Checkbox checked={isItemSelected} onChange={() => handleClick(Id)} />
                                                     </TableCell>
                                                     <TableCell align="left">
                                                         <Typography variant="body2" noWrap>
@@ -253,6 +292,20 @@ export default function UsersList() {
                                                         <Typography variant="body2" noWrap >
                                                             {roles?.join(',')}
                                                         </Typography>
+                                                    </TableCell>
+                                                    <TableCell align="right">
+                                                        <Tooltip title='Edit this record'>
+                                                            {/*
+                                                            <EditIcon
+                                                                onClick={() => handleOpenForm(Id)}
+                                                                sx={{ cursor: 'pointer' }}
+                                                                fontSize='small'
+                                                            />
+                            */}
+                                                            <IconButton size="small" color="success" onClick={() => handleOpenForm(Id)}>
+                                                                <EditIcon />
+                                                            </IconButton>
+                                                        </Tooltip>
                                                     </TableCell>
                                                 </TableRow>
                                             )
